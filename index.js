@@ -1,27 +1,78 @@
-const svg = d3.select("svg");
-const width = window.innerWidth;
-const height = window.innerHeight;
-d3.csv("data.csv", function(data) {
-    console.log(data);
+mapboxgl.accessToken = 'pk.eyJ1IjoiZXN0ZXZhb2FicmV1IiwiYSI6ImNsdjc2bzMyZDA2dnIyam50Z3NjYml2eHoifQ.iadMiy9yZwDOaIRXqUVgMg';
+
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/estevaoabreu/clv76r3ur00nh01qve6re2wvh',
+  center: [-100, 40],
+  zoom: 3.5,
+  projection: 'mercator'
 });
 
-const projection = d3.geoAlbersUsa()
-  .scale(1000)
-  .translate([width / 2, height / 2]);
+map.on('load', () => {
+  d3.csv("data.csv").then(rows => {
+    const features = rows.map(d => {
+      const obj = {};
+      for (const [key, val] of Object.entries(d)) {
+        obj[key.trim().toLowerCase()] = val;
+      }
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [+obj.longitude, +obj.latitude]
+        },
+        properties: {
+          city: obj.city,
+          state: obj.state,
+          datetime: obj.datetime
+        }
+      };
+    }).filter(d => !isNaN(d.geometry.coordinates[0]) && !isNaN(d.geometry.coordinates[1]));
 
-const path = d3.geoPath().projection(projection);
+    console.log("Loaded points:", features.length);
 
-const url = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+    map.addSource("ufoSightings", {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features
+      }
+    });
 
-d3.json(url).then(data => {
-  const states = topojson.feature(data, data.objects.states).features;
+    map.addLayer({
+      id: "ufoSightings",
+      type: "circle",
+      source: "ufoSightings",
+      paint: {
+        "circle-radius": 3,
+        "circle-color": "crimson",
+        "circle-stroke-color": "white",
+        "circle-stroke-width": 0.5,
+        "circle-opacity": 0.7
+      }
+    });
 
-  svg.selectAll("path")
-    .data(states)
-    .enter()
-    .append("path")
-    .attr("d", path)
-    .attr("fill", "#cccccc")
-    .attr("stroke", "#333")
-    .attr("stroke-width", 1);
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false
+    });
+
+    map.on('mouseenter', 'ufoSightings', e => {
+      map.getCanvas().style.cursor = 'pointer';
+      const f = e.features[0];
+      const { city, state, datetime } = f.properties;
+      const coordinates = f.geometry.coordinates.slice();
+      const html = `
+            <strong>${city || 'Unknown'}</strong>${state ? ', ' + state : ''}<br>
+            <em>${datetime || 'No date'}</em>
+          `;
+      popup.setLngLat(coordinates).setHTML(html).addTo(map);
+    });
+
+    map.on('mouseleave', 'ufoSightings', () => {
+      map.getCanvas().style.cursor = '';
+      popup.remove();
+    });
+
+  }).catch(err => console.error("Error loading CSV:", err));
 });
