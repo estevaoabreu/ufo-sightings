@@ -1,24 +1,14 @@
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>UFO Sightings</title>
-  <link rel="stylesheet" href="style.css">
-  <script type="text/javascript" src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson@3"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <svg viewBox="0 0 975 610">
-    <g fill="none" stroke="#000" stroke-linejoin="round" stroke-linecap="round">
-      <path stroke="#aaa" stroke-width="0.5"
-        d="${path(topojson.mesh(us, us.objects.counties, (a, b) => a !== b && (a.id / 1000 | 0) === (b.id / 1000 | 0)))}">
-      </path>
-      <path stroke-width="0.5" d="${path(topojson.mesh(us, us.objects.states, (a, b) => a !== b))}"></path>
-      <path d="${path(topojson.feature(us, us.objects.nation))}"></path>
-    </g>
-  </svg>
+  <svg></svg>
   <script src="index.js"></script>
 </body>
-
 </html>

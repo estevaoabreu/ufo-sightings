@@ -1,12 +1,27 @@
-path = ƒ(t)
-path = d3.geoPath()
+const svg = d3.select("svg");
+const width = window.innerWidth;
+const height = window.innerHeight;
+d3.csv("data.csv", function(data) {
+    console.log(data);
+});
 
-us = Object {
-  type: "Topology"
-  bbox: Array(4) [-57.66491068874468, 12.97635452036684, 957.5235629133763, 606.5694262668667]
-  transform: Object {scale: Array(2), translate: Array(2)}
-  objects: Object {counties: Object, states: Object, nation: Object}
-  arcs: Array(9462) [Array(2), Array(3), Array(2), Array(24), Array(2), Array(11), Array(13), Array(32), Array(2), Array(2), Array(6), Array(5), Array(3), Array(5), Array(2), Array(2), Array(2), Array(5), Array(6), Array(2), …]
-}
+const projection = d3.geoAlbersUsa()
+  .scale(1000)
+  .translate([width / 2, height / 2]);
 
-us = FileAttachment("counties-albers-10m.json").json()
+const path = d3.geoPath().projection(projection);
+
+const url = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+
+d3.json(url).then(data => {
+  const states = topojson.feature(data, data.objects.states).features;
+
+  svg.selectAll("path")
+    .data(states)
+    .enter()
+    .append("path")
+    .attr("d", path)
+    .attr("fill", "#cccccc")
+    .attr("stroke", "#333")
+    .attr("stroke-width", 1);
+});
