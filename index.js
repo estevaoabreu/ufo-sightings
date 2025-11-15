@@ -1,5 +1,13 @@
 mapboxgl.accessToken = 'pk.eyJ1IjoiZXN0ZXZhb2FicmV1IiwiYSI6ImNsdjc2bzMyZDA2dnIyam50Z3NjYml2eHoifQ.iadMiy9yZwDOaIRXqUVgMg'
 
+const clusterToggle = document.getElementById('cluster-toggle')
+let groupSightings = clusterToggle.checked
+
+clusterToggle.addEventListener('change', () => {
+  groupSightings = clusterToggle.checked
+  updateMapVisualization()
+})
+
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/estevaoabreu/clv76r3ur00nh01qve6re2wvh',
@@ -8,33 +16,33 @@ const map = new mapboxgl.Map({
   projection: 'mercator'
 })
 
-map.on('load', () => {
-  d3.csv("data.csv").then(rows => {
-    const features = rows.map(d => ({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [+d.longitude, +d.latitude]
-      },
-      properties: {
-        city: d.city,
-        state: d.state,
-        datetime: d.datetime,
-        comments: d.comments
-      }
-    }))
+let ufoFeatures = []
 
-    map.addSource("ufoSightings", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features
-      },
-      cluster: true,
-      clusterMaxZoom: 6,
-      clusterRadius: 40
-    })
+function updateMapVisualization() {
+  if (map.getLayer('clusters'))
+    map.removeLayer('clusters')
+  if (map.getLayer('unclustered-point'))
+    map.removeLayer('unclustered-point')
+  if (map.getSource('ufoSightings'))
+    map.removeSource('ufoSightings')
 
+  const sourceOptions = {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: ufoFeatures
+    }
+  }
+
+  if (groupSightings) {
+    sourceOptions.cluster = true
+    sourceOptions.clusterMaxZoom = 6
+    sourceOptions.clusterRadius = 40
+  }
+
+  map.addSource("ufoSightings", sourceOptions)
+
+  if (groupSightings) {
     map.addLayer({
       id: 'clusters',
       type: 'circle',
@@ -57,17 +65,38 @@ map.on('load', () => {
         ]
       }
     })
+  }
 
-    map.addLayer({
-      id: 'unclustered-point',
-      type: 'circle',
-      source: 'ufoSightings',
-      filter: ['!', ['has', 'point_count']],
-      paint: {
-        'circle-color': 'red',
-        'circle-radius': 4
+  map.addLayer({
+    id: 'unclustered-point',
+    type: 'circle',
+    source: 'ufoSightings',
+    filter: groupSightings ? ['!', ['has', 'point_count']] : ['all'],
+    paint: {
+      'circle-color': 'red',
+      'circle-radius': 4
+    }
+  })
+}
+
+map.on('load', () => {
+  d3.csv("data.csv").then(rows => {
+    ufoFeatures = rows.map(d => ({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [+d.longitude, +d.latitude]
+      },
+      properties: {
+        city: d.city,
+        state: d.state,
+        country: d.country,
+        datetime: d.datetime,
+        comments: d.comments
       }
-    })
+    }))
+    
+    updateMapVisualization()
 
     const popup = new mapboxgl.Popup({
       closeButton: false,
@@ -90,6 +119,33 @@ map.on('load', () => {
     map.on('mouseleave', 'unclustered-point', () => {
       map.getCanvas().style.cursor = ''
       popup.remove()
+    })
+
+    map.on('click', 'clusters', e => {
+      if (!groupSightings) return
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ['clusters']
+      })
+      const clusterId = features[0].properties.cluster_id
+      const source = map.getSource('ufoSightings')
+
+      source.getClusterExpansionZoom(
+        clusterId,
+        (err, zoom) => {
+          if (err) return
+          map.easeTo({
+            center: features[0].geometry.coordinates,
+            zoom: zoom + 0.75
+          })
+        }
+      )
+    })
+
+    map.on('mouseenter', 'clusters', () => {
+      map.getCanvas().style.cursor = 'pointer'
+    })
+    map.on('mouseleave', 'clusters', () => {
+      map.getCanvas().style.cursor = ''
     })
   })
 })
