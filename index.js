@@ -14,6 +14,7 @@ const map = new mapboxgl.Map({
   style: 'mapbox://styles/estevaoabreu/clv76r3ur00nh01qve6re2wvh',
   center: [-100, 40],
   zoom: 3.5,
+  minZoom: 2,
   projection: 'mercator'
 })
 
