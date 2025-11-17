@@ -2,6 +2,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZXN0ZXZhb2FicmV1IiwiYSI6ImNsdjc2bzMyZDA2dnIya
 
 const clusterToggle = document.getElementById('cluster-toggle')
 let groupSightings = clusterToggle.checked
+      const details = document.querySelector('#details')
 
 clusterToggle.addEventListener('change', () => {
   groupSightings = clusterToggle.checked
@@ -106,7 +107,7 @@ map.on('load', () => {
     map.on('mouseenter', 'unclustered-point', e => {
       map.getCanvas().style.cursor = 'pointer'
       const f = e.features[0]
-      const { city, state, datetime } = f.properties
+      const { city, state, datetime, comments } = f.properties
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(`
@@ -116,12 +117,25 @@ map.on('load', () => {
         .addTo(map)
     })
 
+    map.on('click', 'unclustered-point', e => {
+      details.classList.remove('hidden')
+      const f = e.features[0]
+      const { city, state, datetime, comments } = f.properties
+      details.innerHTML = `
+        <h2>UFO Sighting Details</h2>
+        <p><strong>Location:</strong> ${city || 'Unknown'}${state ? ', ' + state : ''}</p>
+        <p><strong>Date/Time:</strong> ${datetime || 'No date'}</p>
+        <p><strong>Comments:</strong> ${comments || 'No comments'}</p>
+      `
+    })
+
     map.on('mouseleave', 'unclustered-point', () => {
       map.getCanvas().style.cursor = ''
       popup.remove()
     })
 
     map.on('click', 'clusters', e => {
+      details.classList.add('hidden')
       if (!groupSightings) return
       const features = map.queryRenderedFeatures(e.point, {
         layers: ['clusters']
