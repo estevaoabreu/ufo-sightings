@@ -94,7 +94,10 @@ map.on('load', () => {
         state: d.state,
         country: d.country,
         datetime: d.datetime,
-        comments: d.comments
+        comments: d.comments,
+        shape: d.shape,
+        durationSeconds: d.duration_seconds,
+        duration: d.duration_hours_min
       }
     }))
     
