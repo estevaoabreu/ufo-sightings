@@ -1,4 +1,5 @@
 # UFO Sightings
+# Work in Progress
 
 This website was developed for the "Information Visualization" course unit of the Master's in Design and Multimedia of the Faculty of Sciences and Technology of the University of Coimbra. This project was made by Estêvão Abreu, João Luiz Castanheira and José Pedro Gomes.
 
