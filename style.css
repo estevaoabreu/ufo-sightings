@@ -1,37 +1,113 @@
 html,
 body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    font-family: sans-serif;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #1a1a1a;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: sans-serif;
+  overflow: hidden;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000;
 }
 
 #map {
-    width: 80%;
-    height: 80%;
+  width: 70%;
+  height: 80%;
+  margin-left: 400px;
+  border-radius: 5px;
+  border: 1px solid rgba(178, 178, 178, 0.5);
 }
 
 .mapboxgl-popup {
-    font-size: 13px;
-    line-height: 1.3;
+  font-size: 13px;
+  line-height: 1.3;
 }
 
-#details {
-    color: white;
-    position: absolute;
-    bottom: 0;
+.page-header {
+  text-align: center;
+  padding: 20px 0;
 }
 
-#details p {
-    width: 100%;
+.page-header h1 {
+  font-size: 2rem;
+  margin: 0;
+  color: white;
+  text-align: left;
+  margin-left: 100px;
 }
 
-.hidden {
-    display: none;
+.page-header h2 {
+  font-size: 1.1rem;
+  font-weight: 300;
+  margin-top: 5px;
+  color: #ffffff;
+  opacity: 50%;
+  text-align: left;
+  margin-left: 100px;
+}
+
+#filter-panel {
+  position: absolute;
+  top: 120px;
+  left: 90px;
+  width: 250px;
+  background: #000000;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(48, 48, 48, 0.2);
+  z-index: 10;
+  font-family: sans-serif;
+  color: #ffffff;
+  border: 1px solid rgba(178, 178, 178, 0.5);
+}
+
+#filter-panel h3 {
+  margin-top: 0;
+  color: white;
+}
+
+#filter-panel label {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.dual-range {
+  position: relative;
+  width: 300px;
+  height: 30px;
+  margin: 20px 0;
+}
+
+.track {
+  position: absolute;
+  height: 20px;
+  background: #ddd;
+  width: 87%;
+  top: 100%;
+  transform: translateY(-50%);
+  border-radius: 10px;
+}
+
+.thumb {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: rgb(0, 0, 0);
+  border-radius: 50%;
+  top: 100%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+#filter-panel select,
+#filter-panel input[type="range"] {
+  width: 100%;
+  margin-top: 4px;
+  color: #ffffff;
+  background-color: #1a1a1a;
+  border-radius: 5px;
 }
