@@ -3,7 +3,7 @@ mapboxgl.accessToken =
 
 const clusterToggle = document.getElementById('cluster-toggle');
 let groupSightings = clusterToggle.checked;
-const details = document.querySelector('#details');
+let details = document.getElementById('details');
 
 clusterToggle.addEventListener('change', () => {
   groupSightings = clusterToggle.checked;
@@ -36,15 +36,17 @@ function populateFilters(rows) {
   });
 
   const countrySelect = document.getElementById('country-filter');
-  countrySelect.innerHTML = '<option>Todos</option>';
+  countrySelect.innerHTML = '<option value="">All countries</option>';
   [...countries]
     .sort()
     .forEach(
       (c) => (countrySelect.innerHTML += `<option value='${c}'>${c}</option>`)
     );
 
+  updateStateFilterVisibility('');
+
   const stateSelect = document.getElementById('state-filter');
-  stateSelect.innerHTML = '<option>Todos</option>';
+  stateSelect.innerHTML = '<option value="">All states</option>';
   [...states]
     .sort()
     .forEach(
@@ -52,37 +54,29 @@ function populateFilters(rows) {
     );
 
   const shapeSelect = document.getElementById('shape-filter');
-  shapeSelect.innerHTML = '<option>Todas</option>';
+  shapeSelect.innerHTML = '<option value="">All shapes</option>';
   [...shapes]
     .sort()
     .forEach(
       (s) => (shapeSelect.innerHTML += `<option value='${s}'>${s}</option>`)
     );
-
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  const yearRange = document.getElementById('year-filter');
-  const yearValue = document.getElementById('year-value');
-  yearRange.min = minYear;
-  yearRange.max = maxYear;
-  yearRange.value = maxYear;
-  yearValue.textContent = maxYear;
 }
 
 function applyFilters() {
   const country = document.getElementById('country-filter').value;
   const state = document.getElementById('state-filter').value;
   const shape = document.getElementById('shape-filter').value;
-  const maxYear = +document.getElementById('year-filter').value;
 
   return allFeatures.filter((f) => {
     const p = f.properties;
-    const year = p.datetime ? new Date(p.datetime).getFullYear() : 0;
+    const y = p.datetime
+      ? new Date(p.datetime).getFullYear()
+      : 0;
 
+    if (y < valueMin || y > valueMax) return false;
     if (country && p.country !== country) return false;
     if (state && p.state !== state) return false;
     if (shape && p.shape !== shape) return false;
-    if (year > maxYear) return false;
 
     return true;
   });
@@ -90,20 +84,26 @@ function applyFilters() {
 
 function setupFilterListeners() {
   ['country-filter', 'state-filter', 'shape-filter'].forEach((id) => {
-    document.getElementById(id).addEventListener('change', () => {
+    document.getElementById(id).addEventListener('change', (e) => {
+      if (id === 'country-filter') {
+        updateStateFilterVisibility(e.target.value);
+      }
+
       ufoFeatures = applyFilters();
       updateMapVisualization();
     });
   });
+}
 
-  const yearRange = document.getElementById('year-filter');
-  const yearValue = document.getElementById('year-value');
-
-  yearRange.addEventListener('input', () => {
-    yearValue.textContent = yearRange.value;
-    ufoFeatures = applyFilters();
-    updateMapVisualization();
-  });
+function updateStateFilterVisibility(country) {
+  const stateSelect = document.getElementById('state-filter');
+  const stateFilterContainer = document.getElementById('state-filter').parentElement;
+  if (country === 'us')
+    stateFilterContainer.classList.remove('hidden');
+  else {
+    stateFilterContainer.classList.add('hidden');
+    stateSelect.value = '';
+  }
 }
 
 function updateMapVisualization() {
@@ -187,14 +187,9 @@ map.on('load', () => {
       },
     }));
 
-    ufoFeatures = [...allFeatures];
-
     populateFilters(rows);
     setupFilterListeners();
-
-    debugger;
-
-    updateMapVisualization();
+    updateThumbs();
 
     const popup = new mapboxgl.Popup({
       closeButton: false,
@@ -208,8 +203,7 @@ map.on('load', () => {
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(
-          `<strong>${city || 'Unknown'}</strong>${
-            state ? ', ' + state : ''
+          `<strong>${city || 'Unknown'}</strong>${state ? ', ' + state : ''
           }<br><em>${datetime || 'No date'}</em>`
         )
         .addTo(map);
@@ -225,12 +219,11 @@ map.on('load', () => {
       const f = e.features[0];
       const { city, state, datetime, comments } = f.properties;
       details.innerHTML = `
-        <h2>UFO Sighting Details</h2>
-        <p><strong>Location:</strong> ${city || 'Unknown'}${
-        state ? ', ' + state : ''
-      }</p>
-        <p><strong>Date/Time:</strong> ${datetime || 'No date'}</p>
-        <p><strong>Comments:</strong> ${comments || 'No comments'}</p>
+      <h2>UFO Sighting Details</h2>
+      <p><strong>Location:</strong> ${city || 'Unknown'}${state ? ', ' + state : ''
+        }</p>
+      <p><strong>Date/Time:</strong> ${datetime || 'No date'}</p>
+      <p><strong>Comments:</strong> ${comments || 'No comments'}</p>
       `;
     });
 
@@ -265,7 +258,7 @@ const thumbMin = document.getElementById('thumb-min');
 const thumbMax = document.getElementById('thumb-max');
 const yearDisplay = document.getElementById('year-display');
 
-const minYear = 1906;
+const minYear = 1908;
 const maxYear = 2014;
 let valueMin = minYear;
 let valueMax = maxYear;
@@ -279,12 +272,7 @@ function updateThumbs() {
   thumbMax.style.left = leftMax + 'px';
   yearDisplay.textContent = `${valueMin} - ${valueMax}`;
 
-  ufoFeatures = allFeatures.filter((f) => {
-    const y = f.properties.datetime
-      ? new Date(f.properties.datetime).getFullYear()
-      : 0;
-    return y >= valueMin && y <= valueMax;
-  });
+  ufoFeatures = applyFilters();
   updateMapVisualization();
 }
 
@@ -313,5 +301,3 @@ function dragThumb(thumb, isMin) {
 
 dragThumb(thumbMin, true);
 dragThumb(thumbMax, false);
-
-updateThumbs();

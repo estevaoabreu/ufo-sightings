@@ -1,61 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>UFO Sightings</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <title>UFO Sightings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link
-      href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css"
-      rel="stylesheet"
-    />
-    <link href="style.css" rel="stylesheet" />
-  </head>
-  <body>
-    <header class="page-header">
-      <h1>UFO Visualization</h1>
-      <h2>
-        University of Coimbra - Information Visualization Project (1908 - 2014)
-      </h2>
-    </header>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
 
-    <aside id="filter-panel">
-      <h3>Filters</h3>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+</head>
 
-      <label>
-        <input type="checkbox" id="cluster-toggle" checked />
-        Group Sightings
-      </label>
+<body>
+  <header class="page-header">
+    <h1>UFO Sightings</h1>
+    <h2>
+      Information Visualization Project, based on reported UFO Sightings from 1910 to 2015.
+    </h2>
+  </header>
 
-      <label for="country-filter">Country</label>
-      <select id="country-filter">
-        <option value="">All countries</option>
-      </select>
+  <aside id="filter-panel">
+    <h3>Filters</h3>
 
+    <label>
+      <input type="checkbox" id="cluster-toggle" checked />
+      Group Sightings
+    </label>
+
+    <label for="country-filter">Country</label>
+    <select id="country-filter">
+      <option value="">All countries</option>
+    </select>
+
+    <div class="filter-group hidden">
       <label for="state-filter">State</label>
       <select id="state-filter">
         <option value="">All states</option>
       </select>
+    </div>
 
-      <label for="shape-filter">Shape</label>
-      <select id="shape-filter">
-        <option value="">All shapes</option>
-      </select>
+    <label for="shape-filter">Shape</label>
+    <select id="shape-filter">
+      <option value="">All shapes</option>
+    </select>
 
-      <label>Year Range:</label>
-      <div class="dual-range">
-        <div class="track"></div>
-        <div class="thumb" id="thumb-min"></div>
-        <div class="thumb" id="thumb-max"></div>
-        <span id="year-display"></span>
-      </div>
-    </aside>
+    <label>Year range:</label>
+    <div class="dual-range">
+      <div class="track"></div>
+      <div class="thumb" id="thumb-min"></div>
+      <div class="thumb" id="thumb-max"></div>
+      <span id="year-display"></span>
+    </div>
+  </aside>
 
-    <div id="map"></div>
+  <div id="map"></div>
+  <div id="details" class="hidden"></div>
 
-    <script src="index.js"></script>
-  </body>
+  <script src="index.js"></script>
+</body>
+
 </html>

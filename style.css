@@ -48,6 +48,13 @@ body {
   margin-left: 100px;
 }
 
+#details {
+  color: #ffffff;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 #filter-panel {
   position: absolute;
   top: 120px;
@@ -110,4 +117,8 @@ body {
   color: #ffffff;
   background-color: #1a1a1a;
   border-radius: 5px;
+}
+
+.hidden {
+  display: none;
 }
