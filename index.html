@@ -14,11 +14,13 @@
     />
     <link href="style.css" rel="stylesheet" />
   </head>
+
   <body>
     <header class="page-header">
-      <h1>UFO Visualization</h1>
+      <h1>UFO Sightings</h1>
       <h2>
-        University of Coimbra - Information Visualization Project (1908 - 2014)
+        Information Visualization Project, based on reported UFO Sightings from
+        1910 to 2015.
       </h2>
     </header>
 
@@ -35,24 +37,121 @@
         <option value="">All countries</option>
       </select>
 
-      <label for="state-filter">State</label>
-      <select id="state-filter">
-        <option value="">All states</option>
-      </select>
+      <div class="filter-group hidden">
+        <label for="state-filter">State</label>
+        <select id="state-filter">
+          <option value="">All states</option>
+        </select>
+      </div>
 
       <label for="shape-filter">Shape</label>
       <select id="shape-filter">
         <option value="">All shapes</option>
       </select>
 
-      <label>Year Range:</label>
+      <label>Year range:</label>
       <div class="dual-range">
         <div class="track"></div>
         <div class="thumb" id="thumb-min"></div>
         <div class="thumb" id="thumb-max"></div>
         <span id="year-display"></span>
       </div>
+
+      <div id="details" class="hidden"></div>
     </aside>
+
+    <div id="map-stats" style="display: flex; gap: 10px; margin-bottom: 10px">
+      <!-- Total Sightings -->
+      <div class="stat-box" id="total-sightings">
+        <div class="stat-text">
+          <div class="stat-title">Total Sightings</div>
+          <div class="stat-value"></div>
+        </div>
+        <div class="stat-icon">
+          <!-- Olho -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M12 4.5C7.305 4.5 3.135 7.36 1 12c2.135 4.64 6.305 7.5 11 7.5s8.865-2.86 11-7.5c-2.135-4.64-6.305-7.5-11-7.5zm0 12a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"
+            />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Total Cities -->
+      <div class="stat-box" id="total-cities">
+        <div class="stat-text">
+          <div class="stat-title">Total Cities</div>
+          <div class="stat-value"></div>
+        </div>
+        <div class="stat-icon">
+          <!-- Cidade (Prédio) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M4 22h16V2H4v20zm2-8h2v2H6v-2zm0-4h2v2H6v-2zm0-4h2v2H6V6zm4 8h2v2h-2v-2zm0-4h2v2h-2v-2zm0-4h2v2h-2V6zm4 8h2v2h-2v-2zm0-4h2v2h-2v-2zm0-4h2v2h-2V6z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Most Common Shape -->
+      <div class="stat-box" id="common-shape">
+        <div class="stat-text">
+          <div class="stat-title">Most Common Shape</div>
+          <div class="stat-value"></div>
+        </div>
+        <div class="stat-icon">
+          <!-- Disco/Voo -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="6" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Avg Duration -->
+      <div class="stat-box" id="avg-duration">
+        <div class="stat-text">
+          <div class="stat-title">Avg Duration</div>
+          <div class="stat-value"></div>
+        </div>
+        <div class="stat-icon">
+          <!-- Relógio -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="white"
+              stroke-width="2"
+              fill="none"
+            />
+            <line
+              x1="12"
+              y1="12"
+              x2="12"
+              y2="7"
+              stroke="white"
+              stroke-width="2"
+            />
+            <line
+              x1="12"
+              y1="12"
+              x2="15"
+              y2="12"
+              stroke="white"
+              stroke-width="2"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div id="map-buttons">
+      <button class="map-btn active">Map</button>
+      <button class="map-btn">Timeline</button>
+      <button class="map-btn">Shapes</button>
+      <button class="map-btn">Monthly</button>
+    </div>
 
     <div id="map"></div>
 
