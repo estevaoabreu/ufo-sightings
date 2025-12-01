@@ -3,7 +3,7 @@ mapboxgl.accessToken =
 
 const clusterToggle = document.getElementById('cluster-toggle');
 let groupSightings = clusterToggle.checked;
-const details = document.querySelector('#details');
+let details = document.getElementById('details');
 
 clusterToggle.addEventListener('change', () => {
   groupSightings = clusterToggle.checked;
@@ -36,15 +36,17 @@ function populateFilters(rows) {
   });
 
   const countrySelect = document.getElementById('country-filter');
-  countrySelect.innerHTML = '<option>Todos</option>';
+  countrySelect.innerHTML = '<option value="">All countries</option>';
   [...countries]
     .sort()
     .forEach(
       (c) => (countrySelect.innerHTML += `<option value='${c}'>${c}</option>`)
     );
 
+  updateStateFilterVisibility('');
+
   const stateSelect = document.getElementById('state-filter');
-  stateSelect.innerHTML = '<option>Todos</option>';
+  stateSelect.innerHTML = '<option value="">All states</option>';
   [...states]
     .sort()
     .forEach(
@@ -52,37 +54,27 @@ function populateFilters(rows) {
     );
 
   const shapeSelect = document.getElementById('shape-filter');
-  shapeSelect.innerHTML = '<option>Todas</option>';
+  shapeSelect.innerHTML = '<option value="">All shapes</option>';
   [...shapes]
     .sort()
     .forEach(
       (s) => (shapeSelect.innerHTML += `<option value='${s}'>${s}</option>`)
     );
-
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  const yearRange = document.getElementById('year-filter');
-  const yearValue = document.getElementById('year-value');
-  yearRange.min = minYear;
-  yearRange.max = maxYear;
-  yearRange.value = maxYear;
-  yearValue.textContent = maxYear;
 }
 
 function applyFilters() {
   const country = document.getElementById('country-filter').value;
   const state = document.getElementById('state-filter').value;
   const shape = document.getElementById('shape-filter').value;
-  const maxYear = +document.getElementById('year-filter').value;
 
   return allFeatures.filter((f) => {
     const p = f.properties;
-    const year = p.datetime ? new Date(p.datetime).getFullYear() : 0;
+    const y = p.datetime ? new Date(p.datetime).getFullYear() : 0;
 
+    if (y < valueMin || y > valueMax) return false;
     if (country && p.country !== country) return false;
     if (state && p.state !== state) return false;
     if (shape && p.shape !== shape) return false;
-    if (year > maxYear) return false;
 
     return true;
   });
@@ -90,20 +82,27 @@ function applyFilters() {
 
 function setupFilterListeners() {
   ['country-filter', 'state-filter', 'shape-filter'].forEach((id) => {
-    document.getElementById(id).addEventListener('change', () => {
+    document.getElementById(id).addEventListener('change', (e) => {
+      if (id === 'country-filter') {
+        updateStateFilterVisibility(e.target.value);
+      }
+
       ufoFeatures = applyFilters();
       updateMapVisualization();
     });
   });
+}
 
-  const yearRange = document.getElementById('year-filter');
-  const yearValue = document.getElementById('year-value');
-
-  yearRange.addEventListener('input', () => {
-    yearValue.textContent = yearRange.value;
-    ufoFeatures = applyFilters();
-    updateMapVisualization();
-  });
+function updateStateFilterVisibility(country) {
+  const stateSelect = document.getElementById('state-filter');
+  const stateFilterContainer =
+    document.getElementById('state-filter').parentElement;
+  if (country === 'United States')
+    stateFilterContainer.classList.remove('hidden');
+  else {
+    stateFilterContainer.classList.add('hidden');
+    stateSelect.value = '';
+  }
 }
 
 function updateMapVisualization() {
@@ -187,14 +186,56 @@ map.on('load', () => {
       },
     }));
 
-    ufoFeatures = [...allFeatures];
+    function updateStats(features) {
+      // Total Sightings
+      const totalSightings = features.length;
+      document.querySelector('#total-sightings .stat-value').textContent =
+        totalSightings;
+
+      // Total Cities
+      const citiesSet = new Set(
+        features.map((f) => f.properties.city).filter((c) => c)
+      );
+      const totalCities = citiesSet.size;
+      document.querySelector('#total-cities .stat-value').textContent =
+        totalCities;
+
+      // Most Common Shape
+      const shapeCounts = {};
+      features.forEach((f) => {
+        const shape = f.properties.shape || 'Unknown';
+        shapeCounts[shape] = (shapeCounts[shape] || 0) + 1;
+      });
+      let commonShape = 'N/A';
+      if (Object.keys(shapeCounts).length) {
+        commonShape = Object.entries(shapeCounts).sort(
+          (a, b) => b[1] - a[1]
+        )[0][0];
+      }
+      document.querySelector('#common-shape .stat-value').textContent =
+        commonShape;
+
+      // Average Duration
+      const durations = features
+        .map((f) => {
+          if (!f.properties.duration) return NaN;
+          return parseFloat(f.properties.duration); // '5 minutes' -> 5
+        })
+        .filter((d) => !isNaN(d));
+
+      const avgDuration = durations.length
+        ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1)
+        : 'N/A';
+
+      document.querySelector('#avg-duration .stat-value').textContent =
+        avgDuration + (avgDuration !== 'N/A' ? ' min' : '');
+    }
+
+    updateStats(allFeatures);
 
     populateFilters(rows);
     setupFilterListeners();
-
-    debugger;
-
-    updateMapVisualization();
+    updateThumbs();
 
     const popup = new mapboxgl.Popup({
       closeButton: false,
@@ -204,13 +245,22 @@ map.on('load', () => {
     map.on('mouseenter', 'unclustered-point', (e) => {
       map.getCanvas().style.cursor = 'pointer';
       const f = e.features[0];
-      const { city, state, datetime } = f.properties;
+      const { city, state, country, datetime, comments, shape } = f.properties;
+
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(
-          `<strong>${city || 'Unknown'}</strong>${
+          `
+      <div class='ufo-box'>
+        <h3>UFO Sighting</h3>
+        <p><strong>Location:</strong> ${city || 'Unknown'}${
             state ? ', ' + state : ''
-          }<br><em>${datetime || 'No date'}</em>`
+          }<br>${country || ''}</p>
+        <p><strong>Date/Time:</strong> ${datetime || 'No date'}</p>
+        <p><strong>Shape:</strong> ${shape || 'Unknown shape'}</p>
+        <p><strong>Comments:</strong> ${comments || 'No comments'}</p>
+      </div>
+    `
         )
         .addTo(map);
     });
@@ -218,20 +268,6 @@ map.on('load', () => {
     map.on('mouseleave', 'unclustered-point', () => {
       map.getCanvas().style.cursor = '';
       popup.remove();
-    });
-
-    map.on('click', 'unclustered-point', (e) => {
-      details.classList.remove('hidden');
-      const f = e.features[0];
-      const { city, state, datetime, comments } = f.properties;
-      details.innerHTML = `
-        <h2>UFO Sighting Details</h2>
-        <p><strong>Location:</strong> ${city || 'Unknown'}${
-        state ? ', ' + state : ''
-      }</p>
-        <p><strong>Date/Time:</strong> ${datetime || 'No date'}</p>
-        <p><strong>Comments:</strong> ${comments || 'No comments'}</p>
-      `;
     });
 
     map.on('click', 'clusters', (e) => {
@@ -265,8 +301,8 @@ const thumbMin = document.getElementById('thumb-min');
 const thumbMax = document.getElementById('thumb-max');
 const yearDisplay = document.getElementById('year-display');
 
-const minYear = 1906;
-const maxYear = 2014;
+const minYear = 1910;
+const maxYear = 2015;
 let valueMin = minYear;
 let valueMax = maxYear;
 
@@ -275,16 +311,11 @@ const rangeWidth = 250;
 function updateThumbs() {
   const leftMin = ((valueMin - minYear) / (maxYear - minYear)) * rangeWidth;
   const leftMax = ((valueMax - minYear) / (maxYear - minYear)) * rangeWidth;
-  thumbMin.style.left = leftMin + 'px';
+  thumbMin.style.left = leftMin + '10px';
   thumbMax.style.left = leftMax + 'px';
   yearDisplay.textContent = `${valueMin} - ${valueMax}`;
 
-  ufoFeatures = allFeatures.filter((f) => {
-    const y = f.properties.datetime
-      ? new Date(f.properties.datetime).getFullYear()
-      : 0;
-    return y >= valueMin && y <= valueMax;
-  });
+  ufoFeatures = applyFilters();
   updateMapVisualization();
 }
 
@@ -311,7 +342,36 @@ function dragThumb(thumb, isMin) {
   };
 }
 
+const mapButtons = document.querySelectorAll('.map-btn');
+mapButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    mapButtons.forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+const countryFilter = document.getElementById('country-filter');
+countryFilter.addEventListener('change', (e) => {
+  const country = e.target.value;
+
+  if (!country) {
+    map.easeTo({ center: [-50, 40], zoom: 1.0 });
+    return;
+  }
+
+  const features = allFeatures.filter((f) => f.properties?.country === country);
+  if (features.length === 0) return;
+
+  const lons = features.map((f) => f.geometry.coordinates[0]);
+  const lats = features.map((f) => f.geometry.coordinates[1]);
+
+  const bounds = [
+    [Math.min(...lons), Math.min(...lats)],
+    [Math.max(...lons), Math.max(...lats)],
+  ];
+
+  map.fitBounds(bounds, { padding: 50, maxZoom: 6, duration: 1000 });
+});
+
 dragThumb(thumbMin, true);
 dragThumb(thumbMax, false);
-
-updateThumbs();
