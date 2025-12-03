@@ -13,8 +13,8 @@ clusterToggle.addEventListener("change", () => {
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/estevaoabreu/clv76r3ur00nh01qve6re2wvh",
-  center: [-100, 40],
-  zoom: 3.5,
+  center: [-50, 40],
+  zoom: 1.0,
   minZoom: 2,
   projection: "mercator",
 });
@@ -89,6 +89,7 @@ function setupFilterListeners() {
 
       ufoFeatures = applyFilters();
       updateMapVisualization();
+      updateCharts();
     });
   });
 }
@@ -169,9 +170,7 @@ function updateMapVisualization() {
         "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
         "text-size": 12,
       },
-      paint: {
-        "text-color": "#ffffff",
-      },
+      paint: { "text-color": "#ffffff" },
     });
   }
 
@@ -199,6 +198,7 @@ map.on("load", () => {
         shape: d.shape || "",
         datetime: d.datetime,
         comments: d.comments,
+        duration: d.durationMinutes || d.durationSeconds || null,
       },
     }));
 
@@ -212,9 +212,8 @@ map.on("load", () => {
       const citiesSet = new Set(
         features.map((f) => f.properties.city).filter((c) => c)
       );
-      const totalCities = citiesSet.size;
       document.querySelector("#total-cities .stat-value").textContent =
-        totalCities;
+        citiesSet.size;
 
       // Most Common Shape
       const shapeCounts = {};
@@ -222,27 +221,19 @@ map.on("load", () => {
         const shape = f.properties.shape || "Unknown";
         shapeCounts[shape] = (shapeCounts[shape] || 0) + 1;
       });
-      let commonShape = "N/A";
-      if (Object.keys(shapeCounts).length) {
-        commonShape = Object.entries(shapeCounts).sort(
-          (a, b) => b[1] - a[1]
-        )[0][0];
-      }
+      const commonShape = Object.keys(shapeCounts).length
+        ? Object.entries(shapeCounts).sort((a, b) => b[1] - a[1])[0][0]
+        : "N/A";
       document.querySelector("#common-shape .stat-value").textContent =
         commonShape;
 
       // Average Duration
       const durations = features
-        .map((f) => {
-          if (!f.properties.duration) return NaN;
-          return parseFloat(f.properties.duration); // '5 minutes' -> 5
-        })
+        .map((f) => parseFloat(f.properties.duration))
         .filter((d) => !isNaN(d));
-
       const avgDuration = durations.length
         ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1)
         : "N/A";
-
       document.querySelector("#avg-duration .stat-value").textContent =
         avgDuration + (avgDuration !== "N/A" ? " min" : "");
     }
@@ -262,20 +253,18 @@ map.on("load", () => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
       const { city, state, country, datetime, comments, shape } = f.properties;
-
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(
-          `
-      <div class='ufo-box'>
-        <h3>UFO Sighting</h3>
-        <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""
+          `<div class='ufo-box'>
+            <h3>UFO Sighting</h3>
+            <p><strong>Location:</strong> ${city || "Unknown"}${
+            state ? ", " + state : ""
           }<br>${country || ""}</p>
-        <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
-        <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
-        <p><strong>Comments:</strong> ${comments || "No comments"}</p>
-      </div>
-    `
+            <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
+            <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
+            <p><strong>Comments:</strong> ${comments || "No comments"}</p>
+          </div>`
         )
         .addTo(map);
     });
@@ -302,13 +291,12 @@ map.on("load", () => {
       });
     });
 
-    map.on("mouseenter", "clusters", () => {
-      map.getCanvas().style.cursor = "pointer";
-    });
-
-    map.on("mouseleave", "clusters", () => {
-      map.getCanvas().style.cursor = "";
-    });
+    map.on(
+      "mouseenter",
+      "clusters",
+      () => (map.getCanvas().style.cursor = "pointer")
+    );
+    map.on("mouseleave", "clusters", () => (map.getCanvas().style.cursor = ""));
   });
 });
 
@@ -320,7 +308,6 @@ const minYear = 1910;
 const maxYear = 2015;
 let valueMin = minYear;
 let valueMax = maxYear;
-
 const rangeWidth = 250;
 
 function updateThumbs() {
@@ -332,22 +319,19 @@ function updateThumbs() {
 
   ufoFeatures = applyFilters();
   updateMapVisualization();
+  updateCharts();
 }
 
 function dragThumb(thumb, isMin) {
   thumb.onmousedown = function (e) {
     e.preventDefault();
     document.onmousemove = function (event) {
-      let rect = thumb.parentElement.getBoundingClientRect();
+      const rect = thumb.parentElement.getBoundingClientRect();
       let x = event.clientX - rect.left;
       x = Math.max(0, Math.min(rangeWidth, x));
       const val = Math.round((x / rangeWidth) * (maxYear - minYear) + minYear);
-
-      if (isMin) {
-        valueMin = Math.min(val, valueMax);
-      } else {
-        valueMax = Math.max(val, valueMin);
-      }
+      if (isMin) valueMin = Math.min(val, valueMax);
+      else valueMax = Math.max(val, valueMin);
       updateThumbs();
     };
     document.onmouseup = function () {
@@ -357,36 +341,195 @@ function dragThumb(thumb, isMin) {
   };
 }
 
+dragThumb(thumbMin, true);
+dragThumb(thumbMax, false);
+
 const mapButtons = document.querySelectorAll(".map-btn");
-mapButtons.forEach((btn) => {
+const mapDiv = document.querySelector("#map");
+const timelineDiv = document.querySelector("#timeline-container");
+const shapesDiv = document.querySelector("#shapes-container");
+const monthlyDiv = document.querySelector("#monthly-container");
+
+let timelineChart, shapesChart, monthlyChart;
+
+const initialCenter = [-50, 40];
+const initialZoom = 1.0;
+
+mapButtons.forEach((btn, index) => {
   btn.addEventListener("click", () => {
     mapButtons.forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
+
+    mapDiv.style.display = index === 0 ? "block" : "none";
+    timelineDiv.style.display = index === 1 ? "block" : "none";
+    shapesDiv.style.display = index === 2 ? "block" : "none";
+    monthlyDiv.style.display = index === 3 ? "block" : "none";
+
+    if (index === 0) {
+      map.resize();
+      map.easeTo({ center: initialCenter, zoom: initialZoom, duration: 1000 });
+    }
+    if (index === 1) drawTimelineChart(ufoFeatures);
+    if (index === 2) drawShapesChart(ufoFeatures);
+    if (index === 3) drawMonthlyChart(ufoFeatures);
   });
 });
+
+// Gráficos
+
+function drawTimelineChart(features) {
+  const ctx = document.getElementById("timeline-chart").getContext("2d");
+  const years = features
+    .map((f) => new Date(f.properties.datetime).getFullYear())
+    .filter((y) => !isNaN(y));
+  const counts = {};
+  years.forEach((y) => (counts[y] = (counts[y] || 0) + 1));
+  const sortedYears = Object.keys(counts).sort();
+  const values = sortedYears.map((y) => counts[y]);
+  if (timelineChart) timelineChart.destroy();
+  timelineChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: sortedYears,
+      datasets: [
+        {
+          label: "Sightings per year",
+          data: values,
+          borderWidth: 2,
+          tension: 0.2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } },
+      },
+      plugins: { legend: { labels: { color: "white" } } },
+    },
+  });
+}
+
+function drawShapesChart(features) {
+  const ctx = document.getElementById("shapes-chart").getContext("2d");
+
+  const counts = {};
+  features.forEach((f) => {
+    const shape = f.properties.shape || "Unknown";
+    counts[shape] = (counts[shape] || 0) + 1;
+  });
+
+  const labels = Object.keys(counts);
+  const data = labels.map((l) => counts[l]);
+
+  const backgroundColors = labels.map(
+    (_, i) => `hsl(${(i * 360) / labels.length}, 70%, 50%)`
+  );
+
+  if (shapesChart) shapesChart.destroy();
+
+  shapesChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Count per shape",
+          data: data,
+          backgroundColor: backgroundColors,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } },
+      },
+      plugins: {
+        legend: { labels: { color: "white" } },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            label: function (context) {
+              return `${context.label}: ${context.raw} sightings`;
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function drawMonthlyChart(features) {
+  const ctx = document.getElementById("monthly-chart").getContext("2d");
+  const monthsCount = Array(12).fill(0);
+  features.forEach((f) => {
+    const dt = new Date(f.properties.datetime);
+    if (!isNaN(dt)) monthsCount[dt.getMonth()] += 1;
+  });
+  const monthLabels = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  if (monthlyChart) monthlyChart.destroy();
+  monthlyChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: monthLabels,
+      datasets: [
+        {
+          label: "Sightings per month",
+          data: monthsCount,
+          backgroundColor: "rgba(54, 162, 235, 0.8)",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } },
+      },
+      plugins: { legend: { labels: { color: "white" } } },
+    },
+  });
+}
+
+function updateCharts() {
+  const activeBtn = Array.from(mapButtons).findIndex((b) =>
+    b.classList.contains("active")
+  );
+  if (activeBtn === 1) drawTimelineChart(ufoFeatures);
+  if (activeBtn === 2) drawShapesChart(ufoFeatures);
+  if (activeBtn === 3) drawMonthlyChart(ufoFeatures);
+}
 
 const countryFilter = document.getElementById("country-filter");
 countryFilter.addEventListener("change", (e) => {
   const country = e.target.value;
-
-  if (!country) {
-    map.easeTo({ center: [-50, 40], zoom: 1.0 });
-    return;
-  }
-
+  if (!country) return map.easeTo({ center: [-50, 40], zoom: 1.0 });
   const features = allFeatures.filter((f) => f.properties?.country === country);
   if (features.length === 0) return;
-
   const lons = features.map((f) => f.geometry.coordinates[0]);
   const lats = features.map((f) => f.geometry.coordinates[1]);
-
   const bounds = [
     [Math.min(...lons), Math.min(...lats)],
     [Math.max(...lons), Math.max(...lats)],
   ];
-
   map.fitBounds(bounds, { padding: 50, maxZoom: 6, duration: 1000 });
 });
-
-dragThumb(thumbMin, true);
-dragThumb(thumbMax, false);

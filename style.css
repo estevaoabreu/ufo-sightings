@@ -236,6 +236,63 @@ body {
   fill: white;
 }
 
+#timeline-container {
+  position: absolute;
+  top: 270px;
+  left: 400px;
+  width: 69%;
+  height: 60%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(178, 178, 178, 0.5);
+  border-radius: 5px;
+  padding: 10px;
+  z-index: 20;
+  display: none;
+}
+
+#timeline-chart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#shapes-container {
+  position: absolute;
+  top: 270px;
+  left: 400px;
+  width: 69%;
+  height: 60%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(178, 178, 178, 0.5);
+  border-radius: 5px;
+  padding: 10px;
+  z-index: 20;
+  display: none;
+}
+
+#shapes-chart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#monthly-container {
+  position: absolute;
+  top: 270px;
+  left: 400px;
+  width: 69%;
+  height: 60%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(178, 178, 178, 0.5);
+  border-radius: 5px;
+  padding: 10px;
+  z-index: 20;
+  display: none;
+}
+
+#monthly-chart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .hidden {
   display: none;
 }
