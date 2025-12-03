@@ -108,6 +108,7 @@ function updateStateFilterVisibility(country) {
 
 function updateMapVisualization() {
   if (map.getLayer('clusters')) map.removeLayer('clusters');
+  if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
   if (map.getLayer('unclustered-point')) map.removeLayer('unclustered-point');
   if (map.getSource('ufoSightings')) map.removeSource('ufoSightings');
 
@@ -156,6 +157,21 @@ function updateMapVisualization() {
           5000,
           45,
         ],
+      },
+    });
+
+    map.addLayer({
+      id: 'cluster-count',
+      type: 'symbol',
+      source: 'ufoSightings',
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': ['get', 'point_count_abbreviated'],
+        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        'text-size': 12,
+      },
+      paint: {
+        'text-color': 'white',
       },
     });
   }
