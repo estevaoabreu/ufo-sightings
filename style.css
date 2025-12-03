@@ -13,11 +13,12 @@ body {
 }
 
 #map {
+  margin-top: 150px;
   width: 70%;
-  height: 80%;
+  height: 60%;
   margin-left: 400px;
   border-radius: 5px;
-  border: 1px solid rgba(178, 178, 178, 0.5);
+  border: 1px solid rgba(178, 178, 178, 0.2);
 }
 
 .mapboxgl-popup {
@@ -67,7 +68,7 @@ body {
   z-index: 10;
   font-family: sans-serif;
   color: #ffffff;
-  border: 1px solid rgba(178, 178, 178, 0.5);
+  border: 1px solid rgba(178, 178, 178, 0.2);
 }
 
 #filter-panel h3 {
@@ -117,6 +118,122 @@ body {
   color: #ffffff;
   background-color: #1a1a1a;
   border-radius: 5px;
+}
+
+.ufo-box {
+  background: white;
+  opacity: 90%;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(48, 48, 48, 0.2);
+  width: 220px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.ufo-box h3 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+
+.ufo-box p {
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mapboxgl-popup-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+#map-buttons {
+  position: absolute;
+  top: 210px;
+  left: 400px;
+  width: 70%;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2); /* retângulo por trás das palavras */
+  border: 1px solid rgba(178, 178, 178, 0.1);
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 15;
+}
+
+.map-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent; /* sem fundo do botão */
+  color: rgba(255, 255, 255, 0.5); /* palavra branca normalmente */
+  font-size: 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+
+.map-btn:hover {
+  background: transparent; /* remove o quadrado no hover */
+  color: rgb(255, 255, 255); /* muda só a palavra */
+}
+
+.map-btn.active {
+  background: transparent; /* sem fundo do botão */
+  color: rgb(255, 255, 255); /* palavra selecionada em preto */
+  font-weight: bold; /* opcional, para destacar ainda mais */
+}
+
+#map-stats {
+  position: absolute;
+  top: 120px; /* acima dos botões */
+  left: 395px;
+  height: 75px;
+  width: 71%; /* igual ao mapa */
+  display: flex;
+  justify-content: space-between;
+  z-index: 15;
+}
+
+.stat-box {
+  flex: 1;
+  margin: 0 5px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 14px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(178, 178, 178, 0.2);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-box .stat-title {
+  font-weight: bold;
+  opacity: 0.5;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.stat-box .stat-value {
+  font-size: 14px;
+}
+
+.stat-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: white;
 }
 
 .hidden {
