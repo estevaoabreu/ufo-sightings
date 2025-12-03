@@ -1,377 +1,152 @@
-mapboxgl.accessToken =
-  'pk.eyJ1IjoiZXN0ZXZhb2FicmV1IiwiYSI6ImNsdjc2bzMyZDA2dnIyam50Z3NjYml2eHoifQ.iadMiy9yZwDOaIRXqUVgMg';
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>UFO Sightings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-const clusterToggle = document.getElementById('cluster-toggle');
-let groupSightings = clusterToggle.checked;
-let details = document.getElementById('details');
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
 
-clusterToggle.addEventListener('change', () => {
-  groupSightings = clusterToggle.checked;
-  updateMapVisualization();
-});
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" />
+  </head>
 
-const map = new mapboxgl.Map({
-  container: 'map',
-  style: 'mapbox://styles/estevaoabreu/clv76r3ur00nh01qve6re2wvh',
-  center: [-100, 40],
-  zoom: 3.5,
-  minZoom: 2,
-  projection: 'mercator',
-});
+  <body>
+    <header class="page-header">
+      <h1>UFO Sightings</h1>
+      <h2>
+        Information Visualization Project, based on reported UFO Sightings from
+        1910 to 2015.
+      </h2>
+    </header>
 
-let ufoFeatures = [];
-let allFeatures = [];
+    <aside id="filter-panel">
+      <h3>Filters</h3>
 
-function populateFilters(rows) {
-  const countries = new Set();
-  const states = new Set();
-  const shapes = new Set();
-  const years = [];
+      <label>
+        <input type="checkbox" id="cluster-toggle" checked />
+        Group Sightings
+      </label>
 
-  rows.forEach((d) => {
-    if (d.country) countries.add(d.country);
-    if (d.state) states.add(d.state);
-    if (d.shape) shapes.add(d.shape);
-    if (d.datetime) years.push(new Date(d.datetime).getFullYear());
-  });
+      <label for="country-filter">Country</label>
+      <select id="country-filter">
+        <option value="">All countries</option>
+      </select>
 
-  const countrySelect = document.getElementById('country-filter');
-  countrySelect.innerHTML = '<option value="">All countries</option>';
-  [...countries]
-    .sort()
-    .forEach(
-      (c) => (countrySelect.innerHTML += `<option value='${c}'>${c}</option>`)
-    );
-
-  updateStateFilterVisibility('');
-
-  const stateSelect = document.getElementById('state-filter');
-  stateSelect.innerHTML = '<option value="">All states</option>';
-  [...states]
-    .sort()
-    .forEach(
-      (s) => (stateSelect.innerHTML += `<option value='${s}'>${s}</option>`)
-    );
-
-  const shapeSelect = document.getElementById('shape-filter');
-  shapeSelect.innerHTML = '<option value="">All shapes</option>';
-  [...shapes]
-    .sort()
-    .forEach(
-      (s) => (shapeSelect.innerHTML += `<option value='${s}'>${s}</option>`)
-    );
-}
-
-function applyFilters() {
-  const country = document.getElementById('country-filter').value;
-  const state = document.getElementById('state-filter').value;
-  const shape = document.getElementById('shape-filter').value;
-
-  return allFeatures.filter((f) => {
-    const p = f.properties;
-    const y = p.datetime ? new Date(p.datetime).getFullYear() : 0;
-
-    if (y < valueMin || y > valueMax) return false;
-    if (country && p.country !== country) return false;
-    if (state && p.state !== state) return false;
-    if (shape && p.shape !== shape) return false;
-
-    return true;
-  });
-}
-
-function setupFilterListeners() {
-  ['country-filter', 'state-filter', 'shape-filter'].forEach((id) => {
-    document.getElementById(id).addEventListener('change', (e) => {
-      if (id === 'country-filter') {
-        updateStateFilterVisibility(e.target.value);
-      }
-
-      ufoFeatures = applyFilters();
-      updateMapVisualization();
-    });
-  });
-}
-
-function updateStateFilterVisibility(country) {
-  const stateSelect = document.getElementById('state-filter');
-  const stateFilterContainer =
-    document.getElementById('state-filter').parentElement;
-  if (country === 'United States')
-    stateFilterContainer.classList.remove('hidden');
-  else {
-    stateFilterContainer.classList.add('hidden');
-    stateSelect.value = '';
-  }
-}
-
-function updateMapVisualization() {
-  if (map.getLayer('clusters')) map.removeLayer('clusters');
-  if (map.getLayer('unclustered-point')) map.removeLayer('unclustered-point');
-  if (map.getSource('ufoSightings')) map.removeSource('ufoSightings');
-
-  const sourceOptions = {
-    type: 'geojson',
-    data: {
-      type: 'FeatureCollection',
-      features: ufoFeatures,
-    },
-  };
-
-  if (groupSightings) {
-    sourceOptions.cluster = true;
-    sourceOptions.clusterMaxZoom = 6;
-    sourceOptions.clusterRadius = 40;
-  }
-
-  map.addSource('ufoSightings', sourceOptions);
-
-  if (groupSightings) {
-    map.addLayer({
-      id: 'clusters',
-      type: 'circle',
-      source: 'ufoSightings',
-      filter: ['has', 'point_count'],
-      paint: {
-        'circle-color': [
-          'step',
-          ['get', 'point_count'],
-          'rgba(255, 0, 0, 0.25)',
-          250,
-          'rgba(255, 0, 0, 0.5)',
-          500,
-          'rgba(255, 0, 0, 0.75)',
-          750,
-          'rgba(255, 0, 0, 1)',
-        ],
-        'circle-radius': [
-          'step',
-          ['get', 'point_count'],
-          15,
-          250,
-          25,
-          1000,
-          35,
-          5000,
-          45,
-        ],
-      },
-    });
-  }
-
-  map.addLayer({
-    id: 'unclustered-point',
-    type: 'circle',
-    source: 'ufoSightings',
-    filter: groupSightings ? ['!', ['has', 'point_count']] : ['all'],
-    paint: {
-      'circle-color': 'red',
-      'circle-radius': 4,
-    },
-  });
-}
-
-map.on('load', () => {
-  d3.csv('data.csv').then((rows) => {
-    allFeatures = rows.map((d) => ({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [+d.longitude, +d.latitude] },
-      properties: {
-        city: d.city,
-        state: d.state,
-        country: d.country,
-        shape: d.shape || '',
-        datetime: d.datetime,
-        comments: d.comments,
-      },
-    }));
-
-    function updateStats(features) {
-      // Total Sightings
-      const totalSightings = features.length;
-      document.querySelector('#total-sightings .stat-value').textContent =
-        totalSightings;
-
-      // Total Cities
-      const citiesSet = new Set(
-        features.map((f) => f.properties.city).filter((c) => c)
-      );
-      const totalCities = citiesSet.size;
-      document.querySelector('#total-cities .stat-value').textContent =
-        totalCities;
-
-      // Most Common Shape
-      const shapeCounts = {};
-      features.forEach((f) => {
-        const shape = f.properties.shape || 'Unknown';
-        shapeCounts[shape] = (shapeCounts[shape] || 0) + 1;
-      });
-      let commonShape = 'N/A';
-      if (Object.keys(shapeCounts).length) {
-        commonShape = Object.entries(shapeCounts).sort(
-          (a, b) => b[1] - a[1]
-        )[0][0];
-      }
-      document.querySelector('#common-shape .stat-value').textContent =
-        commonShape;
-
-      // Average Duration
-      const durations = features
-        .map((f) => {
-          if (!f.properties.duration) return NaN;
-          return parseFloat(f.properties.duration); // '5 minutes' -> 5
-        })
-        .filter((d) => !isNaN(d));
-
-      const avgDuration = durations.length
-        ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1)
-        : 'N/A';
-
-      document.querySelector('#avg-duration .stat-value').textContent =
-        avgDuration + (avgDuration !== 'N/A' ? ' min' : '');
-    }
-
-    updateStats(allFeatures);
-
-    populateFilters(rows);
-    setupFilterListeners();
-    updateThumbs();
-
-    const popup = new mapboxgl.Popup({
-      closeButton: false,
-      closeOnClick: false,
-    });
-
-    map.on('mouseenter', 'unclustered-point', (e) => {
-      map.getCanvas().style.cursor = 'pointer';
-      const f = e.features[0];
-      const { city, state, country, datetime, comments, shape } = f.properties;
-
-      popup
-        .setLngLat(f.geometry.coordinates)
-        .setHTML(
-          `
-      <div class='ufo-box'>
-        <h3>UFO Sighting</h3>
-        <p><strong>Location:</strong> ${city || 'Unknown'}${
-            state ? ', ' + state : ''
-          }<br>${country || ''}</p>
-        <p><strong>Date/Time:</strong> ${datetime || 'No date'}</p>
-        <p><strong>Shape:</strong> ${shape || 'Unknown shape'}</p>
-        <p><strong>Comments:</strong> ${comments || 'No comments'}</p>
+      <div class="filter-group hidden">
+        <label for="state-filter">State</label>
+        <select id="state-filter">
+          <option value="">All states</option>
+        </select>
       </div>
-    `
-        )
-        .addTo(map);
-    });
 
-    map.on('mouseleave', 'unclustered-point', () => {
-      map.getCanvas().style.cursor = '';
-      popup.remove();
-    });
+      <label for="shape-filter">Shape</label>
+      <select id="shape-filter">
+        <option value="">All shapes</option>
+      </select>
 
-    map.on('click', 'clusters', (e) => {
-      details.classList.add('hidden');
-      if (!groupSightings) return;
-      const features = map.queryRenderedFeatures(e.point, {
-        layers: ['clusters'],
-      });
-      const clusterId = features[0].properties.cluster_id;
-      const source = map.getSource('ufoSightings');
-      source.getClusterExpansionZoom(clusterId, (err, zoom) => {
-        if (err) return;
-        map.easeTo({
-          center: features[0].geometry.coordinates,
-          zoom: zoom + 0.75,
-        });
-      });
-    });
+      <label>Year range:</label>
+      <div class="dual-range">
+        <div class="track"></div>
+        <div class="thumb" id="thumb-min"></div>
+        <div class="thumb" id="thumb-max"></div>
+        <span id="year-display"></span>
+      </div>
 
-    map.on('mouseenter', 'clusters', () => {
-      map.getCanvas().style.cursor = 'pointer';
-    });
+      <div id="details" class="hidden"></div>
+    </aside>
 
-    map.on('mouseleave', 'clusters', () => {
-      map.getCanvas().style.cursor = '';
-    });
-  });
-});
+    <div id="map-stats" style="display: flex; gap: 10px; margin-bottom: 10px">
+      <div class="stat-box" id="total-sightings">
+        <div class="stat-text">
+          <div class="stat-title">Total Sightings</div>
+          <div class="stat-value"></div>
+        </div>
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M12 4.5C7.305 4.5 3.135 7.36 1 12c2.135 4.64 6.305 7.5 11 7.5s8.865-2.86 11-7.5c-2.135-4.64-6.305-7.5-11-7.5zm0 12a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"
+            />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+        </div>
+      </div>
 
-const thumbMin = document.getElementById('thumb-min');
-const thumbMax = document.getElementById('thumb-max');
-const yearDisplay = document.getElementById('year-display');
+      <div class="stat-box" id="total-cities">
+        <div class="stat-text">
+          <div class="stat-title">Total Cities</div>
+          <div class="stat-value"></div>
+        </div>
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M4 22h16V2H4v20zm2-8h2v2H6v-2zm0-4h2v2H6v-2zm0-4h2v2H6V6zm4 8h2v2h-2v-2zm0-4h2v2h-2v-2zm0-4h2v2h-2V6zm4 8h2v2h-2v-2zm0-4h2v2h-2v-2zm0-4h2v2h-2V6z"
+            />
+          </svg>
+        </div>
+      </div>
 
-const minYear = 1910;
-const maxYear = 2015;
-let valueMin = minYear;
-let valueMax = maxYear;
+      <div class="stat-box" id="common-shape">
+        <div class="stat-text">
+          <div class="stat-title">Most Common Shape</div>
+          <div class="stat-value"></div>
+        </div>
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="6" />
+          </svg>
+        </div>
+      </div>
 
-const rangeWidth = 250;
+      <div class="stat-box" id="avg-duration">
+        <div class="stat-text">
+          <div class="stat-title">Avg Duration</div>
+          <div class="stat-value"></div>
+        </div>
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="white"
+              stroke-width="2"
+              fill="none"
+            />
+            <line
+              x1="12"
+              y1="12"
+              x2="12"
+              y2="7"
+              stroke="white"
+              stroke-width="2"
+            />
+            <line
+              x1="12"
+              y1="12"
+              x2="15"
+              y2="12"
+              stroke="white"
+              stroke-width="2"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
 
-function updateThumbs() {
-  const leftMin = ((valueMin - minYear) / (maxYear - minYear)) * rangeWidth;
-  const leftMax = ((valueMax - minYear) / (maxYear - minYear)) * rangeWidth;
-  thumbMin.style.left = leftMin + '10px';
-  thumbMax.style.left = leftMax + 'px';
-  yearDisplay.textContent = `${valueMin} - ${valueMax}`;
+    <div id="map-buttons">
+      <button class="map-btn active">Map</button>
+      <button class="map-btn">Timeline</button>
+      <button class="map-btn">Shapes</button>
+      <button class="map-btn">Monthly</button>
+    </div>
 
-  ufoFeatures = applyFilters();
-  updateMapVisualization();
-}
+    <div id="map"></div>
 
-function dragThumb(thumb, isMin) {
-  thumb.onmousedown = function (e) {
-    e.preventDefault();
-    document.onmousemove = function (event) {
-      let rect = thumb.parentElement.getBoundingClientRect();
-      let x = event.clientX - rect.left;
-      x = Math.max(0, Math.min(rangeWidth, x));
-      const val = Math.round((x / rangeWidth) * (maxYear - minYear) + minYear);
-
-      if (isMin) {
-        valueMin = Math.min(val, valueMax);
-      } else {
-        valueMax = Math.max(val, valueMin);
-      }
-      updateThumbs();
-    };
-    document.onmouseup = function () {
-      document.onmousemove = null;
-      document.onmouseup = null;
-    };
-  };
-}
-
-const mapButtons = document.querySelectorAll('.map-btn');
-mapButtons.forEach((btn) => {
-  btn.addEventListener('click', () => {
-    mapButtons.forEach((b) => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
-});
-
-const countryFilter = document.getElementById('country-filter');
-countryFilter.addEventListener('change', (e) => {
-  const country = e.target.value;
-
-  if (!country) {
-    map.easeTo({ center: [-50, 40], zoom: 1.0 });
-    return;
-  }
-
-  const features = allFeatures.filter((f) => f.properties?.country === country);
-  if (features.length === 0) return;
-
-  const lons = features.map((f) => f.geometry.coordinates[0]);
-  const lats = features.map((f) => f.geometry.coordinates[1]);
-
-  const bounds = [
-    [Math.min(...lons), Math.min(...lats)],
-    [Math.max(...lons), Math.max(...lats)],
-  ];
-
-  map.fitBounds(bounds, { padding: 50, maxZoom: 6, duration: 1000 });
-});
-
-dragThumb(thumbMin, true);
-dragThumb(thumbMax, false);
+    <script src="index.js"></script>
+  </body>
+</html>
