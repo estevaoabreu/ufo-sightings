@@ -258,8 +258,7 @@ map.on("load", () => {
         .setHTML(
           `<div class='ufo-box'>
             <h3>UFO Sighting</h3>
-            <p><strong>Location:</strong> ${city || "Unknown"}${
-            state ? ", " + state : ""
+            <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""
           }<br>${country || ""}</p>
             <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
             <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
