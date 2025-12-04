@@ -21,6 +21,7 @@ const map = new mapboxgl.Map({
 
 let ufoFeatures = [];
 let allFeatures = [];
+let countryToStatesMap = {};
 
 function populateFilters(rows) {
   const countries = new Set();
@@ -28,9 +29,17 @@ function populateFilters(rows) {
   const shapes = new Set();
   const years = [];
 
+  countryToStatesMap = {}; 
+
   rows.forEach((d) => {
     if (d.country) countries.add(d.country);
-    if (d.state) states.add(d.state);
+    if (d.state && d.country) { 
+        states.add(d.state);
+        if (!countryToStatesMap[d.country]) {
+            countryToStatesMap[d.country] = new Set();
+        }
+        countryToStatesMap[d.country].add(d.state);
+    }
     if (d.shape) shapes.add(d.shape);
     if (d.datetime) years.push(new Date(d.datetime).getFullYear());
   });
@@ -44,14 +53,7 @@ function populateFilters(rows) {
     );
 
   updateStateFilterVisibility("");
-
-  const stateSelect = document.getElementById("state-filter");
-  stateSelect.innerHTML = '<option value="">All states</option>';
-  [...states]
-    .sort()
-    .forEach(
-      (s) => (stateSelect.innerHTML += `<option value='${s}'>${s}</option>`)
-    );
+  updateStateFilterOptions("");
 
   const shapeSelect = document.getElementById("shape-filter");
   shapeSelect.innerHTML = '<option value="">All shapes</option>';
@@ -84,7 +86,9 @@ function setupFilterListeners() {
   ["country-filter", "state-filter", "shape-filter"].forEach((id) => {
     document.getElementById(id).addEventListener("change", (e) => {
       if (id === "country-filter") {
-        updateStateFilterVisibility(e.target.value);
+        const selectedCountry = e.target.value;
+        updateStateFilterVisibility(selectedCountry);
+        updateStateFilterOptions(selectedCountry);
       }
 
       ufoFeatures = applyFilters();
@@ -94,11 +98,28 @@ function setupFilterListeners() {
   });
 }
 
+function updateStateFilterOptions(country) {
+  const stateSelect = document.getElementById("state-filter");
+  stateSelect.innerHTML = '<option value="">All states</option>';
+
+  let statesToShow = [];
+
+  if (country && countryToStatesMap[country]) {
+    statesToShow = [...countryToStatesMap[country]].sort();
+  }
+
+  statesToShow.forEach(
+    (s) => (stateSelect.innerHTML += `<option value='${s}'>${s}</option>`)
+  );
+  
+  stateSelect.value = ""; 
+}
+
 function updateStateFilterVisibility(country) {
   const stateSelect = document.getElementById("state-filter");
   const stateFilterContainer =
     document.getElementById("state-filter").parentElement;
-  if (country === "United States")
+  if (country === "United States" || country === "Canada")
     stateFilterContainer.classList.remove("hidden");
   else {
     stateFilterContainer.classList.add("hidden");
@@ -203,19 +224,16 @@ map.on("load", () => {
     }));
 
     function updateStats(features) {
-      // Total Sightings
       const totalSightings = features.length;
       document.querySelector("#total-sightings .stat-value").textContent =
         totalSightings;
 
-      // Total Cities
       const citiesSet = new Set(
         features.map((f) => f.properties.city).filter((c) => c)
       );
       document.querySelector("#total-cities .stat-value").textContent =
         citiesSet.size;
 
-      // Most Common Shape
       const shapeCounts = {};
       features.forEach((f) => {
         const shape = f.properties.shape || "Unknown";
@@ -227,7 +245,6 @@ map.on("load", () => {
       document.querySelector("#common-shape .stat-value").textContent =
         commonShape;
 
-      // Average Duration
       const durations = features
         .map((f) => parseFloat(f.properties.duration))
         .filter((d) => !isNaN(d));
@@ -373,8 +390,6 @@ mapButtons.forEach((btn, index) => {
     if (index === 3) drawMonthlyChart(ufoFeatures);
   });
 });
-
-// Gráficos
 
 function drawTimelineChart(features) {
   const ctx = document.getElementById("timeline-chart").getContext("2d");
