@@ -22,6 +22,7 @@ const map = new mapboxgl.Map({
 let ufoFeatures = [];
 let allFeatures = [];
 let countryToStatesMap = {};
+let countryStateToShapesMap = {};
 
 function populateFilters(rows) {
   const countries = new Set();
@@ -30,9 +31,11 @@ function populateFilters(rows) {
   const years = [];
 
   countryToStatesMap = {}; 
+  countryStateToShapesMap = {};
 
   rows.forEach((d) => {
     if (d.country) countries.add(d.country);
+    
     if (d.state && d.country) { 
         states.add(d.state);
         if (!countryToStatesMap[d.country]) {
@@ -40,7 +43,16 @@ function populateFilters(rows) {
         }
         countryToStatesMap[d.country].add(d.state);
     }
-    if (d.shape) shapes.add(d.shape);
+    
+    if (d.shape) {
+      shapes.add(d.shape);
+      const key = `${d.country || ''}-${d.state || ''}`;
+      if (!countryStateToShapesMap[key]) {
+        countryStateToShapesMap[key] = new Set();
+      }
+      countryStateToShapesMap[key].add(d.shape);
+    }
+    
     if (d.datetime) years.push(new Date(d.datetime).getFullYear());
   });
 
@@ -54,15 +66,45 @@ function populateFilters(rows) {
 
   updateStateFilterVisibility("");
   updateStateFilterOptions("");
-
-  const shapeSelect = document.getElementById("shape-filter");
-  shapeSelect.innerHTML = '<option value="">All shapes</option>';
-  [...shapes]
-    .sort()
-    .forEach(
-      (s) => (shapeSelect.innerHTML += `<option value='${s}'>${s}</option>`)
-    );
+  updateShapeFilterOptions();
 }
+
+function updateShapeFilterOptions() {
+  const country = document.getElementById("country-filter").value;
+  const state = document.getElementById("state-filter").value;
+  const shapeSelect = document.getElementById("shape-filter");
+  
+  shapeSelect.innerHTML = '<option value="">All shapes</option>';
+  
+  const key = `${country || ''}-${state || ''}`;
+  
+  let shapesToShow = [];
+
+  if (countryStateToShapesMap[key]) {
+    shapesToShow = [...countryStateToShapesMap[key]].sort();
+  } else if (country) {
+    const countryShapes = new Set();
+    for (const [map_key, shapeSet] of Object.entries(countryStateToShapesMap)) {
+      if (map_key.startsWith(country)) {
+        shapeSet.forEach(shape => countryShapes.add(shape));
+      }
+    }
+    shapesToShow = [...countryShapes].sort();
+  } else {
+    const allShapes = new Set();
+    for (const shapeSet of Object.values(countryStateToShapesMap)) {
+      shapeSet.forEach(shape => allShapes.add(shape));
+    }
+    shapesToShow = [...allShapes].sort();
+  }
+  
+  shapesToShow.forEach(
+    (s) => (shapeSelect.innerHTML += `<option value='${s}'>${s}</option>`)
+  );
+  
+  shapeSelect.value = ""; 
+}
+
 
 function applyFilters() {
   const country = document.getElementById("country-filter").value;
@@ -90,11 +132,20 @@ function setupFilterListeners() {
         updateStateFilterVisibility(selectedCountry);
         updateStateFilterOptions(selectedCountry);
       }
+      
+      if (id === "country-filter" || id === "state-filter") {
+        updateShapeFilterOptions();
+      }
 
       ufoFeatures = applyFilters();
       updateMapVisualization();
       updateCharts();
     });
+  });
+  
+  // New listener for state filter change to handle map zooming
+  document.getElementById("state-filter").addEventListener("change", (e) => {
+      zoomToState(e.target.value);
   });
 }
 
@@ -320,8 +371,8 @@ const thumbMin = document.getElementById("thumb-min");
 const thumbMax = document.getElementById("thumb-max");
 const yearDisplay = document.getElementById("year-display");
 
-const minYear = 1910;
-const maxYear = 2015;
+const minYear = 1906;
+const maxYear = 2014;
 let valueMin = minYear;
 let valueMax = maxYear;
 const rangeWidth = 250;
@@ -533,11 +584,7 @@ function updateCharts() {
   if (activeBtn === 3) drawMonthlyChart(ufoFeatures);
 }
 
-const countryFilter = document.getElementById("country-filter");
-countryFilter.addEventListener("change", (e) => {
-  const country = e.target.value;
-  if (!country) return map.easeTo({ center: [-50, 40], zoom: 1.0 });
-  const features = allFeatures.filter((f) => f.properties?.country === country);
+function zoomToArea(features, maxZoom) {
   if (features.length === 0) return;
   const lons = features.map((f) => f.geometry.coordinates[0]);
   const lats = features.map((f) => f.geometry.coordinates[1]);
@@ -545,5 +592,27 @@ countryFilter.addEventListener("change", (e) => {
     [Math.min(...lons), Math.min(...lats)],
     [Math.max(...lons), Math.max(...lats)],
   ];
-  map.fitBounds(bounds, { padding: 50, maxZoom: 6, duration: 1000 });
+  map.fitBounds(bounds, { padding: 50, maxZoom: maxZoom, duration: 1000 });
+}
+
+const countryFilter = document.getElementById("country-filter");
+countryFilter.addEventListener("change", (e) => {
+  const country = e.target.value;
+  if (!country) return map.easeTo({ center: [-50, 40], zoom: 1.0 });
+  const features = allFeatures.filter((f) => f.properties?.country === country);
+  zoomToArea(features, 6);
 });
+
+function zoomToState(state) {
+  if (!state) {
+    const country = document.getElementById("country-filter").value;
+    if (country) {
+      const features = allFeatures.filter((f) => f.properties?.country === country);
+      zoomToArea(features, 6);
+    }
+    return;
+  }
+  
+  const features = allFeatures.filter((f) => f.properties?.state === state);
+  zoomToArea(features, 8);
+}
