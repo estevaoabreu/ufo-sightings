@@ -49,13 +49,6 @@ body {
   margin-left: 100px;
 }
 
-#details {
-  color: #ffffff;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
 #filter-panel {
   position: absolute;
   top: 120px;
@@ -81,6 +74,50 @@ body {
   margin-top: 10px;
   font-size: 14px;
   color: #ffffff;
+}
+
+#details-panel {
+  position: absolute;
+  top: 620px;
+  left: 90px;
+  width: 280px;
+  max-height: 300px;
+  background: #000000;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(48, 48, 48, 0.2);
+  z-index: 10;
+  font-family: sans-serif;
+  color: #ffffff;
+  border: 1px solid rgba(178, 178, 178, 0.2);
+  overflow-y: auto;
+}
+
+#details-panel h3 {
+  margin: 0 0 15px 0;
+  color: white;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(178, 178, 178, 0.2);
+  padding-bottom: 10px;
+}
+
+#details-panel.hidden {
+  display: none;
+}
+
+.sighting-info {
+  margin-bottom: 15px;
+}
+
+.sighting-info p {
+  margin: 6px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #fff;
+}
+
+.sighting-info strong {
+  color: #fff;
 }
 
 .dual-range {
@@ -126,8 +163,7 @@ body {
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(48, 48, 48, 0.2);
-  width: auto;
-  max-width: 350px;
+  width: 220px;
   font-family: Arial, sans-serif;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -149,7 +185,7 @@ body {
   gap: 10px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid rgba(178, 178, 178, 0.3);
 }
 
 .comment-avatar {
@@ -158,7 +194,7 @@ body {
   border-radius: 8px;
   flex-shrink: 0;
   background: #f0f0f0;
-  border: 2px solid #ddd;
+  border: 2px solid rgba(178, 178, 178, 0.3);
 }
 
 .comment-info {
@@ -171,14 +207,14 @@ body {
 .comment-author {
   margin: 0;
   font-weight: 600;
-  font-size: 13px;
-  color: #333;
+  font-size: 12px;
+  color: #fff;
 }
 
 .comment-text {
   margin: 0;
-  font-size: 12px;
-  color: #666;
+  font-size: 11px;
+  color: #ccc;
   line-height: 1.4;
   word-wrap: break-word;
 }
