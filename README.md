@@ -15,3 +15,7 @@ This project utilizes the dataset provided by the National UFO Reporting Center 
 **Mapbox GL JS** <https://www.mapbox.com/>
 
 *Mapbox GL JS is a client-side JavaScript library for building web maps and web applications with Mapbox's modern mapping technology. You can use Mapbox GL JS to display Mapbox maps in a web browser or client, add user interactivity, and customize the map experience in your application.*
+
+**Chart.js** <https://www.chartjs.org/>
+
+*Chart.js provides a set of frequently used chart types, plugins, and customization options. In addition to a reasonable set of built-in chart types, you can use additional community-maintained chart types. On top of that, it’s possible to combine several chart types into a mixed chart (essentially, blending multiple chart types into one on the same canvas).*
