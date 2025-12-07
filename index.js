@@ -3,7 +3,8 @@ mapboxgl.accessToken =
 
 const clusterToggle = document.getElementById("cluster-toggle");
 let groupSightings = clusterToggle.checked;
-let details = document.getElementById("details");
+const detailsPanel = document.getElementById("details-panel");
+const detailsContent = document.getElementById("details");
 
 clusterToggle.addEventListener("change", () => {
   groupSightings = clusterToggle.checked;
@@ -29,14 +30,12 @@ const firstNames = ["Alex", "Jordan", "Morgan", "Casey", "Riley", "Taylor", "Dak
 const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"];
 
 function generateRandomName(seed) {
-  // Use a simple seeded random for consistency
   const hash = seed.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
   const firstIdx = Math.abs(hash % firstNames.length);
   const lastIdx = Math.abs((hash / firstNames.length | 0) % lastNames.length);
   return `${firstNames[firstIdx]} ${lastNames[lastIdx]}`;
 }
 
-// Avatar styles for DiceBear API
 const avatarStyles = ["adventurer", "avataaars", "big-ears", "big-smile", "bottts", "croodles", "fun-emoji", "lorelei", "micah", "miniavs", "open-peeps", "personas", "pixel-art", "rings", "shapes", "thumbs"];
 
 function getRandomAvatarUrl(seed) {
@@ -125,7 +124,6 @@ function updateShapeFilterOptions() {
   shapeSelect.value = ""; 
 }
 
-
 function applyFilters() {
   const country = document.getElementById("country-filter").value;
   const state = document.getElementById("state-filter").value;
@@ -163,7 +161,6 @@ function setupFilterListeners() {
     });
   });
   
-  // New listener for state filter change to handle map zooming
   document.getElementById("state-filter").addEventListener("change", (e) => {
       zoomToState(e.target.value);
   });
@@ -340,33 +337,17 @@ map.on("load", () => {
     map.on("mouseenter", "unclustered-point", (e) => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
-      const { city, state, country, datetime, comments, shape } = f.properties;
-      
-      // Generate avatar and name if there are comments
-      let popupContent = `<div class='ufo-box'>
-        <h3>UFO Sighting</h3>
-        <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""}<br>${country || ""}</p>
-        <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
-        <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>`;
-      
-      if (comments) {
-        const commenterName = generateRandomName(comments);
-        const avatarUrl = getRandomAvatarUrl(comments);
-        popupContent += `
-        <div class='comment-section'>
-          <img src='${avatarUrl}' alt='${commenterName}' class='comment-avatar' />
-          <div class='comment-info'>
-            <p class='comment-author'>${commenterName}</p>
-            <p class='comment-text'>${comments}</p>
-          </div>
-        </div>`;
-      }
-      
-      popupContent += `</div>`;
-      
+      const { city, state, country, datetime, shape } = f.properties;
       popup
         .setLngLat(f.geometry.coordinates)
-        .setHTML(popupContent)
+        .setHTML(
+          `<div class='ufo-box'>
+            <h3>UFO Sighting</h3>
+            <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""}<br>${country || ""}</p>
+            <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
+            <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
+          </div>`
+        )
         .addTo(map);
     });
 
@@ -375,8 +356,38 @@ map.on("load", () => {
       popup.remove();
     });
 
+    // Click event to show details in aside
+    map.on("click", "unclustered-point", (e) => {
+      const f = e.features[0];
+      const { city, state, country, datetime, comments, shape } = f.properties;
+      
+      let html = `
+        <div class='sighting-info'>
+          <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""}<br>${country || ""}</p>
+          <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
+          <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
+        </div>
+      `;
+      
+      if (comments) {
+        const commenterName = generateRandomName(comments);
+        const avatarUrl = getRandomAvatarUrl(comments);
+        html += `
+        <div class='comment-section'>
+          <img src='${avatarUrl}' alt='${commenterName}' class='comment-avatar' />
+          <div class='comment-info'>
+            <p class='comment-author'>${commenterName}</p>
+            <p class='comment-text'>${comments}</p>
+          </div>
+        </div>
+        `;
+      }
+      
+      detailsContent.innerHTML = html;
+      detailsPanel.classList.remove("hidden");
+    });
+
     map.on("click", "clusters", (e) => {
-      details.classList.add("hidden");
       if (!groupSightings) return;
       const features = map.queryRenderedFeatures(e.point, {
         layers: ["clusters"],
