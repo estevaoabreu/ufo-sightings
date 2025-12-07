@@ -356,35 +356,28 @@ map.on("load", () => {
       popup.remove();
     });
 
-    // Click event to show details in aside
+    // Click event to show Polaroid-style details
     map.on("click", "unclustered-point", (e) => {
       const f = e.features[0];
-      const { city, state, country, datetime, comments, shape } = f.properties;
-      
-      let html = `
-        <div class='sighting-info'>
-          <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""}<br>${country || ""}</p>
-          <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
-          <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
-        </div>
-      `;
+      const { comments } = f.properties;
       
       if (comments) {
         const commenterName = generateRandomName(comments);
         const avatarUrl = getRandomAvatarUrl(comments);
-        html += `
-        <div class='comment-section'>
-          <img src='${avatarUrl}' alt='${commenterName}' class='comment-avatar' />
-          <div class='comment-info'>
-            <p class='comment-author'>${commenterName}</p>
-            <p class='comment-text'>${comments}</p>
+        
+        detailsContent.innerHTML = `
+          <div class='polaroid'>
+            <img src='${avatarUrl}' alt='${commenterName}' class='polaroid-image' />
+            <div class='polaroid-caption'>
+              <p class='polaroid-name'>${commenterName}</p>
+              <p class='polaroid-comment'>${comments}</p>
+            </div>
           </div>
-        </div>
         `;
+        detailsPanel.classList.remove("hidden");
+      } else {
+        detailsPanel.classList.add("hidden");
       }
-      
-      detailsContent.innerHTML = html;
-      detailsPanel.classList.remove("hidden");
     });
 
     map.on("click", "clusters", (e) => {
