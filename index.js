@@ -446,8 +446,8 @@ mapButtons.forEach((btn, index) => {
  * D3 Connected Scatterplot for Timeline Visualization
  * Inspired by: https://observablehq.com/@d3/connected-scatterplot/2
  * Features:
- * - Line animation on load
- * - Point entrance animations
+ * - Line and points animate together
+ * - Complete animation in 1000ms
  * - Smooth transitions on interaction
  * - Responsive sizing
  */
@@ -509,13 +509,13 @@ function drawTimelineChart(features) {
       .tickFormat("")
     );
   
-  // Add path line with animation
+  // Add path line with animation (1000ms)
   const path = g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("d", line);
   
-  // Animate line drawing (stroke-dasharray animation)
+  // Animate line drawing - completes at 1000ms
   const pathLength = path.node().getTotalLength();
   path
     .attr("stroke-dasharray", pathLength)
@@ -525,7 +525,7 @@ function drawTimelineChart(features) {
     .ease(d3.easeLinear)
     .attr("stroke-dashoffset", 0);
   
-  // Add circles (data points) with staggered entrance animation
+  // Add circles (data points) with synchronized animation (also completes at 1000ms)
   g.selectAll(".dot")
     .data(data)
     .enter()
@@ -568,8 +568,8 @@ function drawTimelineChart(features) {
       g.selectAll(".tooltip-text").remove();
     })
     .transition()
-    .delay((d, i) => i * 40)
-    .duration(600)
+    .delay((d, i) => (i / data.length) * 1000)
+    .duration(1000)
     .ease(d3.easeElasticOut)
     .attr("r", 4)
     .attr("opacity", 1);
