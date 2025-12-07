@@ -53,20 +53,20 @@ function populateFilters(rows) {
   const shapes = new Set();
   const years = [];
 
-  countryToStatesMap = {};
+  countryToStatesMap = {}; 
   countryStateToShapesMap = {};
 
   rows.forEach((d) => {
     if (d.country) countries.add(d.country);
-
-    if (d.state && d.country) {
-      states.add(d.state);
-      if (!countryToStatesMap[d.country]) {
-        countryToStatesMap[d.country] = new Set();
-      }
-      countryToStatesMap[d.country].add(d.state);
+    
+    if (d.state && d.country) { 
+        states.add(d.state);
+        if (!countryToStatesMap[d.country]) {
+            countryToStatesMap[d.country] = new Set();
+        }
+        countryToStatesMap[d.country].add(d.state);
     }
-
+    
     if (d.shape) {
       shapes.add(d.shape);
       const key = `${d.country || ''}-${d.state || ''}`;
@@ -75,7 +75,7 @@ function populateFilters(rows) {
       }
       countryStateToShapesMap[key].add(d.shape);
     }
-
+    
     if (d.datetime) years.push(new Date(d.datetime).getFullYear());
   });
 
@@ -96,11 +96,11 @@ function updateShapeFilterOptions() {
   const country = document.getElementById("country-filter").value;
   const state = document.getElementById("state-filter").value;
   const shapeSelect = document.getElementById("shape-filter");
-
+  
   shapeSelect.innerHTML = '<option value="">All shapes</option>';
-
+  
   const key = `${country || ''}-${state || ''}`;
-
+  
   let shapesToShow = [];
 
   if (countryStateToShapesMap[key]) {
@@ -120,12 +120,12 @@ function updateShapeFilterOptions() {
     }
     shapesToShow = [...allShapes].sort();
   }
-
+  
   shapesToShow.forEach(
     (s) => (shapeSelect.innerHTML += `<option value='${s}'>${s}</option>`)
   );
-
-  shapeSelect.value = "";
+  
+  shapeSelect.value = ""; 
 }
 
 function applyFilters() {
@@ -154,13 +154,13 @@ function setupFilterListeners() {
         activePopup.remove();
         activePopup = null;
       }
-
+      
       if (id === "country-filter") {
         const selectedCountry = e.target.value;
         updateStateFilterVisibility(selectedCountry);
         updateStateFilterOptions(selectedCountry);
       }
-
+      
       if (id === "country-filter" || id === "state-filter") {
         updateShapeFilterOptions();
       }
@@ -170,9 +170,9 @@ function setupFilterListeners() {
       updateCharts();
     });
   });
-
+  
   document.getElementById("state-filter").addEventListener("change", (e) => {
-    zoomToState(e.target.value);
+      zoomToState(e.target.value);
   });
 }
 
@@ -189,8 +189,8 @@ function updateStateFilterOptions(country) {
   statesToShow.forEach(
     (s) => (stateSelect.innerHTML += `<option value='${s}'>${s}</option>`)
   );
-
-  stateSelect.value = "";
+  
+  stateSelect.value = ""; 
 }
 
 function updateStateFilterVisibility(country) {
@@ -297,8 +297,7 @@ map.on("load", () => {
         shape: d.shape || "",
         datetime: d.datetime,
         comments: d.comments,
-        durationSeconds: d.duration_seconds,
-        durationFull: d.duration_full,
+        duration: d.durationMinutes || d.durationSeconds || null,
       },
     }));
 
@@ -325,13 +324,13 @@ map.on("load", () => {
         commonShape;
 
       const durations = features
-        .map((f) => parseFloat(f.properties.durationSeconds))
+        .map((f) => parseFloat(f.properties.duration))
         .filter((d) => !isNaN(d));
       const avgDuration = durations.length
         ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1)
         : "N/A";
       document.querySelector("#avg-duration .stat-value").textContent =
-        avgDuration + (avgDuration !== "N/A" ? " seconds" : "");
+        avgDuration + (avgDuration !== "N/A" ? " min" : "");
     }
 
     updateStats(allFeatures);
@@ -348,18 +347,12 @@ map.on("load", () => {
     map.on("mouseenter", "unclustered-point", (e) => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
-      let { city, state, country, datetime, shape, durationFull } = f.properties;
-
-      city = city.toLowerCase().split(' ');
-      const capitalized = city.map(word => {
-        return word.charAt(0).toUpperCase() + word.slice(1);
-      });
-      city = capitalized.join(' ');
-
+      const { city, state, country, datetime, shape, duration } = f.properties;
+      
       const dateObj = new Date(datetime);
       const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('en-US') : 'Unknown';
       const formattedTime = !isNaN(dateObj) ? dateObj.toLocaleTimeString('en-US') : 'N/A';
-
+      
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(
@@ -398,14 +391,14 @@ map.on("load", () => {
                 <div class='sighting-item-icon'>⏱️</div>
                 <div>
                   <div class='sighting-item-label'>Duration</div>
-                  <div class='sighting-item-value'>${durationFull ? durationFull : 'Unknown'}</div>
+                  <div class='sighting-item-value'>${duration ? duration + ' min' : 'Unknown'}</div>
                 </div>
               </div>
             </div>
           </div>`
         )
         .addTo(map);
-
+      
       activePopup = popup;
     });
 
@@ -418,14 +411,14 @@ map.on("load", () => {
     map.on("click", "unclustered-point", (e) => {
       e.originalEvent.stopPropagation();
       popupClickListener = true;
-
+      
       const f = e.features[0];
       const { comments } = f.properties;
-
+      
       if (comments) {
         const commenterName = generateRandomName(comments);
         const avatarUrl = getRandomAvatarUrl(comments);
-
+        
         detailsContent.innerHTML = `
           <div class='comment-card'>
             <img src='${avatarUrl}' alt='${commenterName}' class='comment-image' />
@@ -447,12 +440,12 @@ map.on("load", () => {
         popupClickListener = false;
         return;
       }
-
+      
       // Check if click was on a point feature
       const features = map.queryRenderedFeatures(e.point, {
         layers: ["unclustered-point"],
       });
-
+      
       // Only keep panel open if clicked on a point, otherwise close
       if (features.length === 0) {
         closeDetailsPanel();
@@ -576,168 +569,45 @@ mapButtons.forEach((btn, index) => {
   });
 });
 
-// D3-powered Timeline Chart with Animations
 function drawTimelineChart(features) {
-  const container = document.getElementById("timeline-container");
-  const data = d3.rollups(
-    features
-      .map((f) => new Date(f.properties.datetime).getFullYear())
-      .filter((y) => !isNaN(y)),
-    (v) => v.length,
-    (d) => d
-  )
-    .map(([year, count]) => ({ year: +year, count }))
-    .sort((a, b) => a.year - b.year);
-
-  if (data.length === 0) {
-    d3.select("#timeline-container").html("<p style='color: white; text-align: center; padding: 20px;'>No data available</p>");
-    return;
-  }
-
-  // Clear previous content
-  d3.select("#timeline-container").html("");
-
-  // Dimensions
-  const margin = { top: 20, right: 30, bottom: 40, left: 70 };
-  const containerWidth = container.offsetWidth;
-  const containerHeight = container.offsetHeight;
-  const width = containerWidth - margin.left - margin.right;
-  const height = containerHeight - margin.top - margin.bottom;
-
-  // Create SVG
-  const svg = d3
-    .select("#timeline-container")
-    .append("svg")
-    .attr("width", containerWidth)
-    .attr("height", containerHeight)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
-  // Scales
-  const xScale = d3
-    .scaleLinear()
-    .domain(d3.extent(data, (d) => d.year))
-    .range([0, width]);
-
-  const yScale = d3
-    .scaleLinear()
-    .domain([0, d3.max(data, (d) => d.count)])
-    .range([height, 0]);
-
-  // Line generator
-  const line = d3
-    .line()
-    .x((d) => xScale(d.year))
-    .y((d) => yScale(d.count));
-
-  // Add grid lines
-  svg
-    .append("g")
-    .attr("class", "grid")
-    .attr("opacity", 0.1)
-    .call(
-      d3
-        .axisLeft(yScale)
-        .tickSize(-width)
-        .tickFormat("")
-    );
-
-  // Draw line with stroke animation
-  const path = svg
-    .append("path")
-    .datum(data)
-    .attr("fill", "none")
-    .attr("stroke", "steelblue")
-    .attr("stroke-width", 2.5)
-    .attr("d", line);
-
-  // Animate line drawing
-  const pathLength = path.node().getTotalLength();
-  path
-    .attr("stroke-dasharray", pathLength)
-    .attr("stroke-dashoffset", pathLength)
-    .transition()
-    .duration(2000)
-    .ease(d3.easeQuadInOut)
-    .attr("stroke-dashoffset", 0);
-
-  // Add circle markers with staggered animation
-  svg
-    .selectAll(".dot")
-    .data(data)
-    .enter()
-    .append("circle")
-    .attr("class", "dot")
-    .attr("cx", (d) => xScale(d.year))
-    .attr("cy", (d) => yScale(d.count))
-    .attr("r", 0)
-    .attr("fill", "steelblue")
-    .attr("opacity", 0.8)
-    .transition()
-    .delay((d, i) => 2000 + i * 5)
-    .duration(500)
-    .attr("r", 3.5);
-
-  // Add interactive tooltips
-  svg
-    .selectAll(".dot")
-    .on("mouseover", function (event, d) {
-      d3.select(this)
-        .transition()
-        .duration(200)
-        .attr("r", 5.5)
-        .attr("opacity", 1);
-
-      svg
-        .append("text")
-        .attr("class", "tooltip")
-        .attr("x", xScale(d.year))
-        .attr("y", yScale(d.count) - 15)
-        .attr("text-anchor", "middle")
-        .attr("fill", "white")
-        .attr("font-size", "12px")
-        .attr("pointer-events", "none")
-        .text(`${d.year}: ${d.count} sightings`);
-    })
-    .on("mouseout", function () {
-      d3.select(this).transition().duration(200).attr("r", 3.5).attr("opacity", 0.8);
-      svg.selectAll(".tooltip").remove();
-    });
-
-  // X-axis
-  svg
-    .append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
-    .attr("color", "white")
-    .style("font-size", "12px");
-
-  // Y-axis
-  svg
-    .append("g")
-    .call(d3.axisLeft(yScale))
-    .attr("color", "white")
-    .style("font-size", "12px");
-
-  // Axis labels
-  svg
-    .append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 0 - margin.left)
-    .attr("x", 0 - height / 2)
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .attr("fill", "white")
-    .attr("font-size", "13px")
-    .text("Number of Sightings");
-
-  svg
-    .append("text")
-    .attr("transform", `translate(${width / 2}, ${height + 35})`)
-    .style("text-anchor", "middle")
-    .attr("fill", "white")
-    .attr("font-size", "13px")
-    .text("Year");
+  const ctx = document.getElementById("timeline-chart").getContext("2d");
+  const years = features
+    .map((f) => new Date(f.properties.datetime).getFullYear())
+    .filter((y) => !isNaN(y));
+  const counts = {};
+  years.forEach((y) => (counts[y] = (counts[y] || 0) + 1));
+  const sortedYears = Object.keys(counts).sort();
+  const values = sortedYears.map((y) => counts[y]);
+  if (timelineChart) timelineChart.destroy();
+  timelineChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: sortedYears,
+      datasets: [
+        {
+          label: "Sightings per year",
+          data: values,
+          borderWidth: 2,
+          tension: 0.2,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1000,
+        easing: 'easeInOutQuart'
+      },
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } },
+      },
+      plugins: { legend: { labels: { color: "white" } } },
+    },
+  });
 }
 
 function drawShapesChart(features) {
@@ -875,7 +745,7 @@ function zoomToState(state) {
     }
     return;
   }
-
+  
   const features = allFeatures.filter((f) => f.properties?.state === state);
   zoomToArea(features, 8);
 }
