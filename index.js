@@ -341,15 +341,54 @@ map.on("load", () => {
     map.on("mouseenter", "unclustered-point", (e) => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
-      const { city, state, country, datetime, shape } = f.properties;
+      const { city, state, country, datetime, shape, duration } = f.properties;
+      
+      const dateObj = new Date(datetime);
+      const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('en-US') : 'Unknown';
+      const formattedTime = !isNaN(dateObj) ? dateObj.toLocaleTimeString('en-US') : 'N/A';
+      
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(
           `<div class='ufo-box'>
-            <h3>UFO Sighting</h3>
-            <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""}<br>${country || ""}</p>
-            <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
-            <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
+            <h3>UFO Sighting Details</h3>
+            <div class='sighting-info'>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>📍</div>
+                <div>
+                  <div class='sighting-item-label'>Location</div>
+                  <div class='sighting-item-value'>${city || 'Unknown'}${state ? ', ' + state : ''}${country ? ', ' + country : ''}</div>
+                </div>
+              </div>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>📅</div>
+                <div>
+                  <div class='sighting-item-label'>Date</div>
+                  <div class='sighting-item-value'>${formattedDate}</div>
+                </div>
+              </div>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>🕐</div>
+                <div>
+                  <div class='sighting-item-label'>Time</div>
+                  <div class='sighting-item-value'>${formattedTime}</div>
+                </div>
+              </div>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>🛸</div>
+                <div>
+                  <div class='sighting-item-label'>Shape</div>
+                  <div class='sighting-item-value'>${shape || 'Unknown'}</div>
+                </div>
+              </div>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>⏱️</div>
+                <div>
+                  <div class='sighting-item-label'>Duration</div>
+                  <div class='sighting-item-value'>${duration ? duration + ' min' : 'Unknown'}</div>
+                </div>
+              </div>
+            </div>
           </div>`
         )
         .addTo(map);
