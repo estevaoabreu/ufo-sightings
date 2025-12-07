@@ -355,7 +355,7 @@ body {
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(178, 178, 178, 0.5);
   border-radius: 5px;
-  padding: 10px;
+  padding: 0;
   z-index: 20;
   display: none;
   overflow: hidden;
@@ -364,35 +364,55 @@ body {
 #timeline-container svg {
   width: 100%;
   height: 100%;
+  display: block;
 }
 
-/* D3 Chart Styling */
-#timeline-container .grid line {
-  stroke: rgba(255, 255, 255, 0.1);
-  stroke-dasharray: 4;
+/* D3 Timeline Styles */
+#timeline-container .tick line {
+  stroke: rgba(150, 150, 150, 0.4);
+  stroke-width: 1;
 }
 
-#timeline-container .grid path {
-  stroke: none;
-}
-
-#timeline-container text {
-  font-size: 12px;
+#timeline-container .tick text {
   fill: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+#timeline-container .axis-label {
+  fill: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#timeline-container .line {
+  fill: none;
+  stroke: rgba(100, 150, 255, 0.8);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 #timeline-container .dot {
+  fill: rgba(100, 200, 255, 0.9);
+  stroke: rgba(200, 220, 255, 0.8);
+  stroke-width: 1.5;
   cursor: pointer;
-  transition: r 0.2s ease, opacity 0.2s ease;
 }
 
 #timeline-container .dot:hover {
-  filter: brightness(1.2);
+  fill: rgba(150, 220, 255, 1);
+  filter: drop-shadow(0 0 4px rgba(100, 200, 255, 0.6));
 }
 
-#timeline-container path {
-  stroke-linecap: round;
-  stroke-linejoin: round;
+#timeline-container .tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 100;
 }
 
 #shapes-container {
@@ -407,6 +427,7 @@ body {
   padding: 10px;
   z-index: 20;
   display: none;
+  overflow: auto;
 }
 
 #shapes-chart {
@@ -426,6 +447,7 @@ body {
   padding: 10px;
   z-index: 20;
   display: none;
+  overflow: auto;
 }
 
 #monthly-chart {
