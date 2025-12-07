@@ -297,7 +297,8 @@ map.on("load", () => {
         shape: d.shape || "",
         datetime: d.datetime,
         comments: d.comments,
-        duration: d.durationMinutes || d.durationSeconds || null,
+        durationSeconds: d.duration_seconds,
+        durationFull: d.duration_full,
       },
     }));
 
@@ -324,13 +325,13 @@ map.on("load", () => {
         commonShape;
 
       const durations = features
-        .map((f) => parseFloat(f.properties.duration))
+        .map((f) => parseFloat(f.properties.durationSeconds))
         .filter((d) => !isNaN(d));
       const avgDuration = durations.length
         ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1)
         : "N/A";
       document.querySelector("#avg-duration .stat-value").textContent =
-        avgDuration + (avgDuration !== "N/A" ? " min" : "");
+        avgDuration + (avgDuration !== "N/A" ? " seconds" : "");
     }
 
     updateStats(allFeatures);
