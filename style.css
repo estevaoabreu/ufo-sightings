@@ -49,13 +49,6 @@ body {
   margin-left: 100px;
 }
 
-#details {
-  color: #ffffff;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
 #filter-panel {
   position: absolute;
   top: 120px;
@@ -81,6 +74,154 @@ body {
   margin-top: 10px;
   font-size: 14px;
   color: #ffffff;
+}
+
+#details-panel {
+  position: absolute;
+  top: calc(120px + 310px);
+  left: 90px;
+  width: 280px;
+  background: transparent;
+  padding: 0;
+  z-index: 10;
+}
+
+#details-panel.hidden {
+  display: none;
+}
+
+#details {
+  width: 100%;
+}
+
+.comment-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(178, 178, 178, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.comment-card::before {
+  content: "Sighting Details";
+  display: block;
+  padding: 16px 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  background: transparent;
+}
+
+.comment-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 0;
+  display: block;
+  margin: 0;
+  border: none;
+  flex-shrink: 0;
+}
+
+.comment-details {
+  background: transparent;
+  padding: 16px;
+  border-radius: 0;
+  border: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.comment-name {
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.comment-text {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.ufo-box {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(178, 178, 178, 0.2);
+  padding: 0;
+  border-radius: 12px;
+  width: 280px;
+  font-family: sans-serif;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(48, 48, 48, 0.2);
+}
+
+.ufo-box h3 {
+  margin: 0;
+  padding: 16px 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  background: transparent;
+}
+
+.ufo-box .sighting-info {
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sighting-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.sighting-item:last-child {
+  margin-bottom: 0;
+}
+
+.sighting-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.sighting-item-label {
+  font-weight: 500;
+  color: #ffffff;
+  min-width: 70px;
+}
+
+.sighting-item-value {
+  color: rgba(255, 255, 255, 0.8);
+  flex: 1;
+  word-wrap: break-word;
+}
+
+.mapboxgl-popup-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+.mapboxgl-popup {
+  font-size: 13px;
+  line-height: 1.3;
 }
 
 .dual-range {
@@ -118,36 +259,6 @@ body {
   color: #ffffff;
   background-color: #1a1a1a;
   border-radius: 5px;
-}
-
-.ufo-box {
-  background: white;
-  opacity: 90%;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(48, 48, 48, 0.2);
-  width: 220px;
-  font-family: Arial, sans-serif;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-.ufo-box h3 {
-  margin: 0 0 6px;
-  font-size: 20px;
-}
-
-.ufo-box p {
-  margin: 4px 0;
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.mapboxgl-popup-content {
-  background: transparent !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  border: none !important;
 }
 
 #map-buttons {
@@ -245,63 +356,14 @@ body {
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(178, 178, 178, 0.5);
   border-radius: 5px;
-  padding: 0;
+  padding: 10px;
   z-index: 20;
   display: none;
-  overflow: hidden;
 }
 
-#timeline-container svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-#timeline-container .tick line {
-  stroke: rgba(150, 150, 150, 0.4);
-  stroke-width: 1;
-}
-
-#timeline-container .tick text {
-  fill: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
-}
-
-#timeline-container .axis-label {
-  fill: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
-  font-weight: bold;
-}
-
-#timeline-container .line {
-  fill: none;
-  stroke: rgba(100, 150, 255, 0.8);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-#timeline-container .dot {
-  fill: rgba(100, 200, 255, 0.9);
-  stroke: rgba(200, 220, 255, 0.8);
-  stroke-width: 1.5;
-  cursor: pointer;
-}
-
-#timeline-container .dot:hover {
-  fill: rgba(150, 220, 255, 1);
-  filter: drop-shadow(0 0 4px rgba(100, 200, 255, 0.6));
-}
-
-#timeline-container .tooltip {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  pointer-events: none;
-  z-index: 100;
+#timeline-chart {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 #shapes-container {
@@ -316,7 +378,6 @@ body {
   padding: 10px;
   z-index: 20;
   display: none;
-  overflow: auto;
 }
 
 #shapes-chart {
@@ -336,7 +397,6 @@ body {
   padding: 10px;
   z-index: 20;
   display: none;
-  overflow: auto;
 }
 
 #monthly-chart {
