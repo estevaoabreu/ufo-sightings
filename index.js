@@ -348,7 +348,7 @@ map.on("load", () => {
     map.on("mouseenter", "unclustered-point", (e) => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
-      const { city, state, country, datetime, shape, duration } = f.properties;
+      const { city, state, country, datetime, shape, durationFull } = f.properties;
       
       const dateObj = new Date(datetime);
       const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('en-US') : 'Unknown';
@@ -392,7 +392,7 @@ map.on("load", () => {
                 <div class='sighting-item-icon'>⏱️</div>
                 <div>
                   <div class='sighting-item-label'>Duration</div>
-                  <div class='sighting-item-value'>${duration ? duration + ' min' : 'Unknown'}</div>
+                  <div class='sighting-item-value'>${durationFull ? durationFull : 'Unknown'}</div>
                 </div>
               </div>
             </div>
