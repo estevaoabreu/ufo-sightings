@@ -51,20 +51,20 @@ function populateFilters(rows) {
   const shapes = new Set();
   const years = [];
 
-  countryToStatesMap = {}; 
+  countryToStatesMap = {};
   countryStateToShapesMap = {};
 
   rows.forEach((d) => {
     if (d.country) countries.add(d.country);
-    
-    if (d.state && d.country) { 
-        states.add(d.state);
-        if (!countryToStatesMap[d.country]) {
-            countryToStatesMap[d.country] = new Set();
-        }
-        countryToStatesMap[d.country].add(d.state);
+
+    if (d.state && d.country) {
+      states.add(d.state);
+      if (!countryToStatesMap[d.country]) {
+        countryToStatesMap[d.country] = new Set();
+      }
+      countryToStatesMap[d.country].add(d.state);
     }
-    
+
     if (d.shape) {
       shapes.add(d.shape);
       const key = `${d.country || ''}-${d.state || ''}`;
@@ -73,7 +73,7 @@ function populateFilters(rows) {
       }
       countryStateToShapesMap[key].add(d.shape);
     }
-    
+
     if (d.datetime) years.push(new Date(d.datetime).getFullYear());
   });
 
@@ -94,11 +94,11 @@ function updateShapeFilterOptions() {
   const country = document.getElementById("country-filter").value;
   const state = document.getElementById("state-filter").value;
   const shapeSelect = document.getElementById("shape-filter");
-  
+
   shapeSelect.innerHTML = '<option value="">All shapes</option>';
-  
+
   const key = `${country || ''}-${state || ''}`;
-  
+
   let shapesToShow = [];
 
   if (countryStateToShapesMap[key]) {
@@ -118,12 +118,12 @@ function updateShapeFilterOptions() {
     }
     shapesToShow = [...allShapes].sort();
   }
-  
+
   shapesToShow.forEach(
     (s) => (shapeSelect.innerHTML += `<option value='${s}'>${s}</option>`)
   );
-  
-  shapeSelect.value = ""; 
+
+  shapeSelect.value = "";
 }
 
 function applyFilters() {
@@ -152,13 +152,13 @@ function setupFilterListeners() {
         activePopup.remove();
         activePopup = null;
       }
-      
+
       if (id === "country-filter") {
         const selectedCountry = e.target.value;
         updateStateFilterVisibility(selectedCountry);
         updateStateFilterOptions(selectedCountry);
       }
-      
+
       if (id === "country-filter" || id === "state-filter") {
         updateShapeFilterOptions();
       }
@@ -168,9 +168,9 @@ function setupFilterListeners() {
       updateCharts();
     });
   });
-  
+
   document.getElementById("state-filter").addEventListener("change", (e) => {
-      zoomToState(e.target.value);
+    zoomToState(e.target.value);
   });
 }
 
@@ -187,8 +187,8 @@ function updateStateFilterOptions(country) {
   statesToShow.forEach(
     (s) => (stateSelect.innerHTML += `<option value='${s}'>${s}</option>`)
   );
-  
-  stateSelect.value = ""; 
+
+  stateSelect.value = "";
 }
 
 function updateStateFilterVisibility(country) {
@@ -347,13 +347,13 @@ map.on("load", () => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
       let { city, state, country, datetime, shape, durationFull } = f.properties;
-      
+
       city = city.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
       const dateObj = new Date(datetime);
       const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('en-US') : 'Unknown';
       const formattedTime = !isNaN(dateObj) ? dateObj.toLocaleTimeString('en-US') : 'N/A';
-      
+
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(
@@ -399,7 +399,7 @@ map.on("load", () => {
           </div>`
         )
         .addTo(map);
-      
+
       activePopup = popup;
     });
 
@@ -410,14 +410,14 @@ map.on("load", () => {
     map.on("click", "unclustered-point", (e) => {
       e.originalEvent.stopPropagation();
       popupClickListener = true;
-      
+
       const f = e.features[0];
       const { comments } = f.properties;
-      
+
       if (comments) {
         const commenterName = generateRandomName(comments);
         const avatarUrl = getRandomAvatarUrl(comments);
-        
+
         detailsContent.innerHTML = `
           <div class='comment-card'>
             <img src='${avatarUrl}' alt='${commenterName}' class='comment-image' />
@@ -438,11 +438,11 @@ map.on("load", () => {
         popupClickListener = false;
         return;
       }
-      
+
       const features = map.queryRenderedFeatures(e.point, {
         layers: ["unclustered-point"],
       });
-      
+
       if (features.length === 0) {
         closeDetailsPanel();
         if (activePopup) {
@@ -565,38 +565,143 @@ mapButtons.forEach((btn, index) => {
 });
 
 function drawTimelineChart(features) {
-  const ctx = document.getElementById("timeline-chart").getContext("2d");
-  const years = features
-    .map((f) => new Date(f.properties.datetime).getFullYear())
-    .filter((y) => !isNaN(y));
-  const counts = {};
-  years.forEach((y) => (counts[y] = (counts[y] || 0) + 1));
-  const sortedYears = Object.keys(counts).sort();
-  const values = sortedYears.map((y) => counts[y]);
-  if (timelineChart) timelineChart.destroy();
-  timelineChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: sortedYears,
-      datasets: [
-        {
-          label: "Sightings per year",
-          data: values,
-          borderWidth: 2,
-          tension: 0.2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: { ticks: { color: "white" } },
-        y: { ticks: { color: "white" } },
-      },
-      plugins: { legend: { labels: { color: "white" } } },
-    },
+  timelineDiv.innerHTML = "";
+
+  const yearCounts = {};
+  features.forEach((f) => {
+    const year = new Date(f.properties.datetime).getFullYear();
+    if (!isNaN(year)) {
+      yearCounts[year] = (yearCounts[year] || 0) + 1;
+    }
   });
+
+  const data = Object.entries(yearCounts)
+    .map(([year, count]) => ({ year: parseInt(year), count: parseInt(count) }))
+    .sort((a, b) => a.year - b.year);
+
+  if (data.length === 0) {
+    timelineDiv.innerHTML = "<p class='no-data-msg'>No data for the selected period.</p>";
+    return;
+  }
+
+  const margin = { top: 30, right: 30, bottom: 50, left: 70 };
+  const containerRect = timelineDiv.getBoundingClientRect();
+  const width = containerRect.width - margin.left - margin.right;
+  const height = containerRect.height - margin.top - margin.bottom;
+
+  const xScale = d3.scaleLinear()
+    .domain(d3.extent(data, d => d.year))
+    .range([0, width]);
+
+  const yScale = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.count) || 1])
+    .range([height, 0]);
+
+  const svg = d3.select("#timeline-container")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+
+  const g = svg.append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  const line = d3.line()
+    .x(d => xScale(d.year))
+    .y(d => yScale(d.count));
+
+  g.append("g")
+    .attr("class", "grid")
+    .call(d3.axisLeft(yScale)
+      .tickSize(-width)
+      .tickFormat("")
+    )
+    .selectAll("line")
+    .attr("stroke", "rgba(150, 150, 150, 0.4)")
+    .attr("stroke-width", 1);
+
+  const path = g.append("path")
+    .datum(data)
+    .attr("class", "line")
+    .attr("d", line)
+    .attr("stroke", "lightblue")
+    .attr("fill", "none");
+
+  const pathLength = path.node().getTotalLength();
+  path
+    .attr("stroke-dasharray", pathLength)
+    .attr("stroke-dashoffset", pathLength)
+    .transition()
+    .duration(1000)
+    .ease(d3.easeLinear)
+    .attr("stroke-dashoffset", 0);
+
+  g.selectAll(".dot")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("class", "dot")
+    .attr("cx", d => xScale(d.year))
+    .attr("cy", d => yScale(d.count))
+    .attr("fill", "lightblue")
+    .attr("r", 0)
+    .attr("opacity", 0)
+    .on("mouseover", function (event, d) {
+      d3.select(this)
+        .transition()
+        .duration(300)
+        .attr("r", 7)
+        .attr("filter", "drop-shadow(0 0 6px rgba(100, 200, 255, 0.8))");
+
+      g.append("text")
+        .attr("class", "tooltip-text")
+        .attr("x", xScale(d.year))
+        .attr("y", yScale(d.count) - 20)
+        .attr("text-anchor", "middle")
+        .attr("fill", "rgba(255, 255, 255, 0.9)")
+        .attr("font-size", "13px")
+        .attr("font-weight", "bold")
+        .attr("pointer-events", "none")
+        .style("text-shadow", "0 0 4px rgba(0, 0, 0, 0.8)")
+        .text(`${d.year}: ${d.count} sightings`)
+        .transition()
+        .duration(200)
+        .attr("opacity", 1);
+    })
+    .on("mouseout", function () {
+      d3.select(this)
+        .transition()
+        .duration(300)
+        .attr("r", 4)
+        .attr("filter", "");
+
+      g.selectAll(".tooltip-text").remove();
+    })
+    .transition()
+    .delay((d, i) => (i / data.length) * 1000)
+    .duration(1000)
+    .ease(d3.easeElasticOut)
+    .attr("r", 4)
+    .attr("opacity", 1);
+
+  g.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
+    .append("text")
+    .attr("class", "axis-label")
+    .attr("x", width / 2)
+    .attr("y", 40)
+    .attr("text-anchor", "middle")
+    .text("Year");
+
+  g.append("g")
+    .call(d3.axisLeft(yScale))
+    .append("text")
+    .attr("class", "axis-label")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -50)
+    .attr("text-anchor", "middle")
+    .text("Number of Sightings");
 }
 
 function drawShapesChart(features) {
@@ -734,7 +839,7 @@ function zoomToState(state) {
     }
     return;
   }
-  
+
   const features = allFeatures.filter((f) => f.properties?.state === state);
   zoomToArea(features, 8);
 }
