@@ -442,6 +442,7 @@ mapButtons.forEach((btn, index) => {
   });
 });
 
+<<<<<<< HEAD
 /**
  * D3 Connected Scatterplot for Timeline Visualization
  * Inspired by: https://observablehq.com/@d3/connected-scatterplot/2
@@ -597,6 +598,41 @@ function drawTimelineChart(features) {
     .attr("y", -50)
     .attr("text-anchor", "middle")
     .text("Number of Sightings");
+=======
+function drawTimelineChart(features) {
+  const ctx = document.getElementById("timeline-chart").getContext("2d");
+  const years = features
+    .map((f) => new Date(f.properties.datetime).getFullYear())
+    .filter((y) => !isNaN(y));
+  const counts = {};
+  years.forEach((y) => (counts[y] = (counts[y] || 0) + 1));
+  const sortedYears = Object.keys(counts).sort();
+  const values = sortedYears.map((y) => counts[y]);
+  if (timelineChart) timelineChart.destroy();
+  timelineChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: sortedYears,
+      datasets: [
+        {
+          label: "Sightings per year",
+          data: values,
+          borderWidth: 2,
+          tension: 0.2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } },
+      },
+      plugins: { legend: { labels: { color: "white" } } },
+    },
+  });
+>>>>>>> parent of e846103 (Add D3 animations to Timeline chart)
 }
 
 function drawShapesChart(features) {
