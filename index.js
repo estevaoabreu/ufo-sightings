@@ -576,39 +576,168 @@ mapButtons.forEach((btn, index) => {
   });
 });
 
+// D3-powered Timeline Chart with Animations
 function drawTimelineChart(features) {
-  const ctx = document.getElementById("timeline-chart").getContext("2d");
-  const years = features
-    .map((f) => new Date(f.properties.datetime).getFullYear())
-    .filter((y) => !isNaN(y));
-  const counts = {};
-  years.forEach((y) => (counts[y] = (counts[y] || 0) + 1));
-  const sortedYears = Object.keys(counts).sort();
-  const values = sortedYears.map((y) => counts[y]);
-  if (timelineChart) timelineChart.destroy();
-  timelineChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: sortedYears,
-      datasets: [
-        {
-          label: "Sightings per year",
-          data: values,
-          borderWidth: 2,
-          tension: 0.2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: { ticks: { color: "white" } },
-        y: { ticks: { color: "white" } },
-      },
-      plugins: { legend: { labels: { color: "white" } } },
-    },
-  });
+  const container = document.getElementById("timeline-container");
+  const data = d3.rollups(
+    features
+      .map((f) => new Date(f.properties.datetime).getFullYear())
+      .filter((y) => !isNaN(y)),
+    (v) => v.length,
+    (d) => d
+  )
+    .map(([year, count]) => ({ year: +year, count }))
+    .sort((a, b) => a.year - b.year);
+
+  if (data.length === 0) {
+    d3.select("#timeline-container").html("<p style='color: white; text-align: center; padding: 20px;'>No data available</p>");
+    return;
+  }
+
+  // Clear previous content
+  d3.select("#timeline-container").html("");
+
+  // Dimensions
+  const margin = { top: 20, right: 30, bottom: 40, left: 70 };
+  const containerWidth = container.offsetWidth;
+  const containerHeight = container.offsetHeight;
+  const width = containerWidth - margin.left - margin.right;
+  const height = containerHeight - margin.top - margin.bottom;
+
+  // Create SVG
+  const svg = d3
+    .select("#timeline-container")
+    .append("svg")
+    .attr("width", containerWidth)
+    .attr("height", containerHeight)
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Scales
+  const xScale = d3
+    .scaleLinear()
+    .domain(d3.extent(data, (d) => d.year))
+    .range([0, width]);
+
+  const yScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(data, (d) => d.count)])
+    .range([height, 0]);
+
+  // Line generator
+  const line = d3
+    .line()
+    .x((d) => xScale(d.year))
+    .y((d) => yScale(d.count));
+
+  // Add grid lines
+  svg
+    .append("g")
+    .attr("class", "grid")
+    .attr("opacity", 0.1)
+    .call(
+      d3
+        .axisLeft(yScale)
+        .tickSize(-width)
+        .tickFormat("")
+    );
+
+  // Draw line with stroke animation
+  const path = svg
+    .append("path")
+    .datum(data)
+    .attr("fill", "none")
+    .attr("stroke", "steelblue")
+    .attr("stroke-width", 2.5)
+    .attr("d", line);
+
+  // Animate line drawing
+  const pathLength = path.node().getTotalLength();
+  path
+    .attr("stroke-dasharray", pathLength)
+    .attr("stroke-dashoffset", pathLength)
+    .transition()
+    .duration(2000)
+    .ease(d3.easeQuadInOut)
+    .attr("stroke-dashoffset", 0);
+
+  // Add circle markers with staggered animation
+  svg
+    .selectAll(".dot")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("class", "dot")
+    .attr("cx", (d) => xScale(d.year))
+    .attr("cy", (d) => yScale(d.count))
+    .attr("r", 0)
+    .attr("fill", "steelblue")
+    .attr("opacity", 0.8)
+    .transition()
+    .delay((d, i) => 2000 + i * 5)
+    .duration(500)
+    .attr("r", 3.5);
+
+  // Add interactive tooltips
+  svg
+    .selectAll(".dot")
+    .on("mouseover", function (event, d) {
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .attr("r", 5.5)
+        .attr("opacity", 1);
+
+      svg
+        .append("text")
+        .attr("class", "tooltip")
+        .attr("x", xScale(d.year))
+        .attr("y", yScale(d.count) - 15)
+        .attr("text-anchor", "middle")
+        .attr("fill", "white")
+        .attr("font-size", "12px")
+        .attr("pointer-events", "none")
+        .text(`${d.year}: ${d.count} sightings`);
+    })
+    .on("mouseout", function () {
+      d3.select(this).transition().duration(200).attr("r", 3.5).attr("opacity", 0.8);
+      svg.selectAll(".tooltip").remove();
+    });
+
+  // X-axis
+  svg
+    .append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
+    .attr("color", "white")
+    .style("font-size", "12px");
+
+  // Y-axis
+  svg
+    .append("g")
+    .call(d3.axisLeft(yScale))
+    .attr("color", "white")
+    .style("font-size", "12px");
+
+  // Axis labels
+  svg
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x", 0 - height / 2)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .attr("fill", "white")
+    .attr("font-size", "13px")
+    .text("Number of Sightings");
+
+  svg
+    .append("text")
+    .attr("transform", `translate(${width / 2}, ${height + 35})`)
+    .style("text-anchor", "middle")
+    .attr("fill", "white")
+    .attr("font-size", "13px")
+    .text("Year");
 }
 
 function drawShapesChart(features) {
