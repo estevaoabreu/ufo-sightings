@@ -500,14 +500,16 @@ function drawTimelineChart(features) {
     .x(d => xScale(d.year))
     .y(d => yScale(d.count));
   
-  // Add grid lines
+  // Add grid lines with gray color and reduced opacity
   g.append("g")
     .attr("class", "grid")
-    .attr("opacity", 0.1)
     .call(d3.axisLeft(yScale)
       .tickSize(-width)
       .tickFormat("")
-    );
+    )
+    .selectAll("line")
+    .attr("stroke", "rgba(150, 150, 150, 0.4)")
+    .attr("stroke-width", 1);
   
   // Add path line with animation (1000ms)
   const path = g.append("path")
