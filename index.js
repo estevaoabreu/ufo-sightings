@@ -41,6 +41,10 @@ function getRandomAvatarUrl(seed) {
   return `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(seed)}`;
 }
 
+function closeDetailsPanel() {
+  detailsPanel.classList.add("hidden");
+}
+
 function populateFilters(rows) {
   const countries = new Set();
   const states = new Set();
@@ -143,6 +147,8 @@ function applyFilters() {
 function setupFilterListeners() {
   ["country-filter", "state-filter", "shape-filter"].forEach((id) => {
     document.getElementById(id).addEventListener("change", (e) => {
+      closeDetailsPanel();
+      
       if (id === "country-filter") {
         const selectedCountry = e.target.value;
         updateStateFilterVisibility(selectedCountry);
@@ -356,6 +362,8 @@ map.on("load", () => {
 
     // Click event to show avatar and comment
     map.on("click", "unclustered-point", (e) => {
+      e.originalEvent.stopPropagation();
+      
       const f = e.features[0];
       const { comments } = f.properties;
       
@@ -374,12 +382,27 @@ map.on("load", () => {
         `;
         detailsPanel.classList.remove("hidden");
       } else {
-        detailsPanel.classList.add("hidden");
+        closeDetailsPanel();
+      }
+    });
+
+    // Close details panel when clicking anywhere else on map
+    map.on("click", (e) => {
+      // Check if click was on a point feature
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ["unclustered-point"],
+      });
+      
+      // Only keep panel open if clicked on a point, otherwise close
+      if (features.length === 0) {
+        closeDetailsPanel();
       }
     });
 
     map.on("click", "clusters", (e) => {
       if (!groupSightings) return;
+      e.originalEvent.stopPropagation();
+      closeDetailsPanel();
       const features = map.queryRenderedFeatures(e.point, {
         layers: ["clusters"],
       });
@@ -467,6 +490,9 @@ mapButtons.forEach((btn, index) => {
     timelineDiv.style.display = index === 1 ? "block" : "none";
     shapesDiv.style.display = index === 2 ? "block" : "none";
     monthlyDiv.style.display = index === 3 ? "block" : "none";
+
+    // Close details panel when changing tabs
+    closeDetailsPanel();
 
     if (index === 0) {
       map.resize();
