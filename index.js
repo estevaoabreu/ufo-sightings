@@ -14,8 +14,8 @@ const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/estevaoabreu/clv76r3ur00nh01qve6re2wvh",
   center: [-50, 40],
-  zoom: 1.0,
-  minZoom: 2,
+  zoom: 2,
+  minZoom: 1,
   projection: "mercator",
 });
 
@@ -30,20 +30,20 @@ function populateFilters(rows) {
   const shapes = new Set();
   const years = [];
 
-  countryToStatesMap = {}; 
+  countryToStatesMap = {};
   countryStateToShapesMap = {};
 
   rows.forEach((d) => {
     if (d.country) countries.add(d.country);
-    
-    if (d.state && d.country) { 
-        states.add(d.state);
-        if (!countryToStatesMap[d.country]) {
-            countryToStatesMap[d.country] = new Set();
-        }
-        countryToStatesMap[d.country].add(d.state);
+
+    if (d.state && d.country) {
+      states.add(d.state);
+      if (!countryToStatesMap[d.country]) {
+        countryToStatesMap[d.country] = new Set();
+      }
+      countryToStatesMap[d.country].add(d.state);
     }
-    
+
     if (d.shape) {
       shapes.add(d.shape);
       const key = `${d.country || ''}-${d.state || ''}`;
@@ -52,7 +52,7 @@ function populateFilters(rows) {
       }
       countryStateToShapesMap[key].add(d.shape);
     }
-    
+
     if (d.datetime) years.push(new Date(d.datetime).getFullYear());
   });
 
@@ -73,11 +73,11 @@ function updateShapeFilterOptions() {
   const country = document.getElementById("country-filter").value;
   const state = document.getElementById("state-filter").value;
   const shapeSelect = document.getElementById("shape-filter");
-  
+
   shapeSelect.innerHTML = '<option value="">All shapes</option>';
-  
+
   const key = `${country || ''}-${state || ''}`;
-  
+
   let shapesToShow = [];
 
   if (countryStateToShapesMap[key]) {
@@ -97,12 +97,12 @@ function updateShapeFilterOptions() {
     }
     shapesToShow = [...allShapes].sort();
   }
-  
+
   shapesToShow.forEach(
     (s) => (shapeSelect.innerHTML += `<option value='${s}'>${s}</option>`)
   );
-  
-  shapeSelect.value = ""; 
+
+  shapeSelect.value = "";
 }
 
 
@@ -132,7 +132,7 @@ function setupFilterListeners() {
         updateStateFilterVisibility(selectedCountry);
         updateStateFilterOptions(selectedCountry);
       }
-      
+
       if (id === "country-filter" || id === "state-filter") {
         updateShapeFilterOptions();
       }
@@ -142,10 +142,10 @@ function setupFilterListeners() {
       updateCharts();
     });
   });
-  
+
   // New listener for state filter change to handle map zooming
   document.getElementById("state-filter").addEventListener("change", (e) => {
-      zoomToState(e.target.value);
+    zoomToState(e.target.value);
   });
 }
 
@@ -162,8 +162,8 @@ function updateStateFilterOptions(country) {
   statesToShow.forEach(
     (s) => (stateSelect.innerHTML += `<option value='${s}'>${s}</option>`)
   );
-  
-  stateSelect.value = ""; 
+
+  stateSelect.value = "";
 }
 
 function updateStateFilterVisibility(country) {
@@ -270,7 +270,8 @@ map.on("load", () => {
         shape: d.shape || "",
         datetime: d.datetime,
         comments: d.comments,
-        duration: d.durationMinutes || d.durationSeconds || null,
+        durationSeconds: d.duration_seconds,
+        durationFull: d.duration_full,
       },
     }));
 
@@ -297,13 +298,13 @@ map.on("load", () => {
         commonShape;
 
       const durations = features
-        .map((f) => parseFloat(f.properties.duration))
+        .map((f) => parseFloat(f.properties.durationSeconds))
         .filter((d) => !isNaN(d));
       const avgDuration = durations.length
         ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1)
         : "N/A";
       document.querySelector("#avg-duration .stat-value").textContent =
-        avgDuration + (avgDuration !== "N/A" ? " min" : "");
+        avgDuration + (avgDuration !== "N/A" ? " seconds" : "");
     }
 
     updateStats(allFeatures);
@@ -320,7 +321,14 @@ map.on("load", () => {
     map.on("mouseenter", "unclustered-point", (e) => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
-      const { city, state, country, datetime, comments, shape } = f.properties;
+      let { city, state, country, datetime, comments, shape } = f.properties;
+
+      city = city.toLowerCase().split(' ');
+      const capitalized = city.map(word => {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      });
+      city = capitalized.join(' ');
+
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(
@@ -454,7 +462,7 @@ mapButtons.forEach((btn, index) => {
 function drawTimelineChart(features) {
   // Clear previous chart
   timelineDiv.innerHTML = "";
-  
+
   // Process data: count sightings per year
   const yearCounts = {};
   features.forEach((f) => {
@@ -463,43 +471,43 @@ function drawTimelineChart(features) {
       yearCounts[year] = (yearCounts[year] || 0) + 1;
     }
   });
-  
+
   // Convert to array of objects
   const data = Object.entries(yearCounts)
     .map(([year, count]) => ({ year: parseInt(year), count: parseInt(count) }))
     .sort((a, b) => a.year - b.year);
-  
+
   if (data.length === 0) return;
-  
+
   // Dimensions
   const margin = { top: 30, right: 30, bottom: 50, left: 70 };
   const containerRect = timelineDiv.getBoundingClientRect();
   const width = containerRect.width - margin.left - margin.right;
   const height = containerRect.height - margin.top - margin.bottom;
-  
+
   // Scales
   const xScale = d3.scaleLinear()
     .domain(d3.extent(data, d => d.year))
     .range([0, width]);
-  
+
   const yScale = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.count)])
     .range([height, 0]);
-  
+
   // Create SVG
   const svg = d3.select("#timeline-container")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
-  
+
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
-  
+
   // Create line generator
   const line = d3.line()
     .x(d => xScale(d.year))
     .y(d => yScale(d.count));
-  
+
   // Add grid lines with gray color and reduced opacity
   g.append("g")
     .attr("class", "grid")
@@ -510,13 +518,13 @@ function drawTimelineChart(features) {
     .selectAll("line")
     .attr("stroke", "rgba(150, 150, 150, 0.4)")
     .attr("stroke-width", 1);
-  
+
   // Add path line with animation (1000ms)
   const path = g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("d", line);
-  
+
   // Animate line drawing - completes at 1000ms
   const pathLength = path.node().getTotalLength();
   path
@@ -526,7 +534,7 @@ function drawTimelineChart(features) {
     .duration(1000)
     .ease(d3.easeLinear)
     .attr("stroke-dashoffset", 0);
-  
+
   // Add circles (data points) with synchronized animation (also completes at 1000ms)
   g.selectAll(".dot")
     .data(data)
@@ -537,13 +545,13 @@ function drawTimelineChart(features) {
     .attr("cy", d => yScale(d.count))
     .attr("r", 0)
     .attr("opacity", 0)
-    .on("mouseover", function(event, d) {
+    .on("mouseover", function (event, d) {
       d3.select(this)
         .transition()
         .duration(300)
         .attr("r", 7)
         .attr("filter", "drop-shadow(0 0 6px rgba(100, 200, 255, 0.8))");
-      
+
       // Show tooltip
       g.append("text")
         .attr("class", "tooltip-text")
@@ -560,13 +568,13 @@ function drawTimelineChart(features) {
         .duration(200)
         .attr("opacity", 1);
     })
-    .on("mouseout", function() {
+    .on("mouseout", function () {
       d3.select(this)
         .transition()
         .duration(300)
         .attr("r", 4)
         .attr("filter", "");
-      
+
       g.selectAll(".tooltip-text").remove();
     })
     .transition()
@@ -575,7 +583,7 @@ function drawTimelineChart(features) {
     .ease(d3.easeElasticOut)
     .attr("r", 4)
     .attr("opacity", 1);
-  
+
   // X axis
   g.append("g")
     .attr("transform", `translate(0,${height})`)
@@ -586,7 +594,7 @@ function drawTimelineChart(features) {
     .attr("y", 40)
     .attr("text-anchor", "middle")
     .text("Year");
-  
+
   // Y axis
   g.append("g")
     .call(d3.axisLeft(yScale))
@@ -734,7 +742,7 @@ function zoomToState(state) {
     }
     return;
   }
-  
+
   const features = allFeatures.filter((f) => f.properties?.state === state);
   zoomToArea(features, 8);
 }

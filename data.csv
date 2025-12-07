@@ -1,4 +1,4 @@
-datetime,city,state,country,shape,duration (seconds),duration (hours/min),comments,date posted,latitude,longitude
+datetime,city,state,country,shape,duration_seconds,duration_full,comments,date posted,latitude,longitude
 10/10/1949 20:30,san marcos,Texas,United States,cylinder,2700,45 minutes,"This event took place in early fall around 1949-50. It occurred after a Boy Scout meeting in the Baptist Church. The Baptist Church sit",4/27/2004,29.8830556,-97.9411111
 10/10/1949 21:00,lackland afb,Texas,United States,light,7200,1-2 hrs,"1949 Lackland AFB&#44 TX. Lights racing across the sky &amp; making 90 degree turns on a dime.",12/16/2005,29.38421,-98.581082
 10/10/1955 17:00,chester,,United Kingdom,circle,20,20 seconds,"Green/Orange circular disc over Chester&#44 England",1/21/2008,53.2,-2.916667
@@ -1249,7 +1249,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 10/13/2000 18:30,wichita,Kansas,United States,other,90,1:30,"Did not see a craft&#44 just a bursting brilliant meteor shower&#44 several chunks of debris came from it. This was a natural phenomenon. L",12/2/2000,37.6922222,-97.3372222
 10/13/2000 18:45,knoxville,Tennessee,United States,cylinder,120,2 minutes,"Two metalllic cylinders and an unusual &quot;plane&quot; sighted flying from SW to ENE and ENE to SW in Knoxville.",12/2/2000,35.9605556,-83.9208333
 10/13/2000 18:45,louisville,Kentucky,United States,triangle,600,10 minutes,"My encounter with a UFO was very horrifying at the time&#44 but now it I realize how truly amazing the experience was.",3/6/2001,38.2541667,-85.7594444
-10/13/2000 19:00,oklahoma (route 44),Oklahoma,United States,fireball,120,several minutes,"Flaming rock seen in sky over Oklahoma",12/20/2000,35.46756,-97.516428
+10/13/2000 19:00,oklahoma,Oklahoma,United States,fireball,120,several minutes,"Flaming rock seen in sky over Oklahoma",12/20/2000,35.46756,-97.516428
 10/13/2000 19:14,clyde,Texas,United States,cylinder,60,around 1 min.,"The Book of Yahweh",12/2/2000,32.4058333,-99.4933333
 10/13/2000 19:20,jenks,Oklahoma,United States,fireball,30,30 seconds,"A fireball with a bright glowing tail.",12/2/2000,36.0227778,-95.9680556
 10/13/2000 19:25,orangeville,Pennsylvania,United States,unknown,600,10 min,"Brilliant shimmering gold object sighted 1 hr after sunset",12/2/2000,41.0780556,-76.4147222
@@ -2862,7 +2862,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 10/19/1977 21:30,los banos&#44 laguna,,Philippines,unknown,60,1 minute,"While satellite gazing at night&#44 three objects moving in the upper atmosphere stopped completely for a second&#44 then proceeded in differ",2/16/1999,14.169912,121.244063
 10/19/1980 01:00,bald knob,Arkansas,United States,triangle,600,10 min,"ORANGE TRIANGULAR CRAFT&#44NO NOISE",11/21/2010,35.3097222,-91.5677778
 10/19/1983 04:55,reykjavik,,Iceland,disk,5,5 seconds,"well i was at my work and went out smoking&#44and from the east of my directio n came a silver object and changded course flying south onl",6/12/2008,64.133333,-21.933333
-10/19/1992 14:00,new york city (jamaica),New York,United States,disk,8,8 seconds,"Octagan craft with lights over a hundred feet wide seen upclose",9/24/2012,40.7141667,-74.0063889
+10/19/1992 14:00,new york city,New York,United States,disk,8,8 seconds,"Octagan craft with lights over a hundred feet wide seen upclose",9/24/2012,40.7141667,-74.0063889
 10/19/1994 07:30,medina,Ohio,United States,sphere,1200,20 minutes,"a huge bright orange sphere appeared and dissapeared",9/24/2003,41.1383333,-81.8638889
 10/19/1995 01:00,colorado springs,Colorado,United States,other,10,10 seconds,"Multiple&#44 star-shaped&#44 dim yellow lights in straight line",8/5/2001,38.8338889,-104.8208333
 10/19/1995 05:30,rocky point,Washington,United States,unknown,60,1 minute,"Woman repts. being awakened by strange &quot;whine&#44 like a jet.&quot; Went outside&#44 saw bizarre delta-shaped craft. Obj. changed shape&#33",11/2/1999,47.5930556,-122.6672222
@@ -8753,7 +8753,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 11/12/2012 20:00,fort collins,Colorado,United States,triangle,15,10-15 seconds,"A &quot;V&quot; formation of 5 faint solid lights flies over Fort Collins heading west.",11/19/2012,40.5852778,-105.0838889
 11/12/2012 20:40,garison,Minnesota,United States,diamond,60,1 minute,"two abnormal planes&#44 abnormal markings and totally silent at low height.",11/19/2012,46.294404,-93.826922
 11/12/2012 21:00,canmore,Alberta,Canada,fireball,1,1 second,"Huge Green Fireball Dropping from sky by Lac Des Arcs - Canmore Canada",11/19/2012,51.1,-115.35
-11/12/2012 21:00,chennai (madras),,India,circle,60,1 minutes,"((No information from witness.))",11/19/2012,13.052414,80.250825
+11/12/2012 21:00,chennai,,India,circle,60,1 minutes,"((No information from witness.))",11/19/2012,13.052414,80.250825
 11/12/2012 22:00,smithville,Missouri,United States,light,1800,30 minutes,"3 hovering lights over small town.",11/19/2012,39.3869444,-94.5808333
 11/12/2012 22:17,richmond,Quebec,Canada,cross,20,20 seconds,"Bright pink lights appears on North Richmond Sky",11/19/2012,45.666667,-72.15
 11/12/2012 22:20,new york city,New York,United States,sphere,600,10 minutes,"Dark red sphere zig zaged then disappeared",2/18/2013,40.7141667,-74.0063889
@@ -12778,7 +12778,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 11/25/1974 21:00,west milton,Ohio,United States,circle,600,10 minutes,"Two orange globes traveling slowly north to south.",9/12/2003,41.106606,-80.965002
 11/25/1974 22:00,verbena,Alabama,United States,sphere,300,5 minutes,"Big Bobbing red light",4/16/2005,32.7497222,-86.5113889
 11/25/1975 23:00,unspecified location in wv,West Virginia,United States,triangle,600,10 min,"Mercedes shaped red UFO",11/21/2010,38.597626,-80.454903
-11/25/1976 20:20,virginia (western part; rural),Virginia,United States,fireball,120,2 minutes,"White light above cloud cover speed about 3000 mph;the fiery ball desending at a rate of 50 mph.",7/28/2010,37.431573,-78.656894
+11/25/1976 20:20,virginia,Virginia,United States,fireball,120,2 minutes,"White light above cloud cover speed about 3000 mph;the fiery ball desending at a rate of 50 mph.",7/28/2010,37.431573,-78.656894
 11/25/1976 23:00,omaha,Nebraska,United States,rectangle,60,seemed like 1 minute&#44 but,"White rectangular &quot;door&quot; opens in night sky&#44 emiting orange beam of light",10/31/2003,41.2586111,-95.9375000
 11/25/1978 22:00,fredericksburg,Texas,United States,light,60,1 minute,"Blue lights fill room of house in rural Texas before abruptly vanishing",5/13/2012,30.2750000,-98.8716667
 11/25/1981 22:00,angleton &amp; pearland,Texas,United States,sphere,600,10 minutes,"Driving to Galveston @ 10 p.m. Nov. of `81&#44 I saw 100s of saucers&#44 got out of car and pointed upwards but 3 other cars wouldn&#39t stop.",3/19/2009,29.563567,-95.286047
@@ -14629,7 +14629,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 11/5/1998 02:00,punta gorda,Florida,United States,triangle,30,30 seconds,"I saw 3 triangular craft in the night sky over my home in Florida.",12/3/2004,26.9294444,-82.0455556
 1/15/1998 05:00,lake city,Colorado,United States,light,30,30 seconds,"An object the size and brightness of Venus appeared in southern sky for appoximately 30 seconds. It then gradually doubled and size a",3/7/1998,38.0300000,-107.3147222
 1/15/1998 05:30,daytona beach,Florida,United States,light,120,1-2 minutes,"Two red lights manuevering both stationary and at very high rates of speed. Both performed unlimited climbs until disappering.",9/17/2000,29.2105556,-81.0230556
-1/15/1998 13:00,alaska (remote),Alaska,United States,disk,20,20 seconds,"saucer shaped object passed directly above me",3/16/2000,64.200841,-149.493673
+1/15/1998 13:00,alaska,Alaska,United States,disk,20,20 seconds,"saucer shaped object passed directly above me",3/16/2000,64.200841,-149.493673
 11/5/1998 18:12,van nuys,California,United States,sphere,1,1 second,"Two green luminous spheres moving straight towards the ground and disappeared behind a building.",11/19/1998,34.1866667,-118.4480556
 11/5/1998 18:15,burbank,California,United States,fireball,1,1 second,"Meteor Flash 90 degress down&#44 at about 2000 feet.",11/19/1998,34.1808333,-118.3080556
 1/15/1998 19:00,grants pass,Oregon,United States,triangle,60,1 minute&#44+-,"Triangular Ship:Turning in midair",3/7/1998,42.4391667,-123.3272222
@@ -14858,7 +14858,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 11/5/2007 22:00,colorado springs,Colorado,United States,triangle,300,5 minutes,"V shaped object spotted in night sky",3/4/2008,38.8338889,-104.8208333
 1/15/2007 22:00,sydney,,Australia,circle,30,30seconds,"a circle UFO with green&#44red&#44 blue light&#44 about 2miles away in sky",2/1/2007,-33.861481,151.205475
 1/15/2007 22:30,liberty,Missouri,United States,unknown,120,2 min,"Dark area in sky over Liberty&#44 Missouri",10/8/2007,39.2461111,-94.4188889
-11/5/2007 22:30,savannah (wilmington island),Georgia,United States,formation,5,5 seconds,"A V &quot;formation&quot; of five lights moved silently at a high rate of speed from East to West at 22:30 EST 5 Nov 07",11/28/2007,32.0833333,-81.1000000
+11/5/2007 22:30,savannah,Georgia,United States,formation,5,5 seconds,"A V &quot;formation&quot; of five lights moved silently at a high rate of speed from East to West at 22:30 EST 5 Nov 07",11/28/2007,32.0833333,-81.1000000
 11/5/2007 23:00,alexandria,Virginia,United States,triangle,20,20 seconds,"A large black triangle passed over our house and into the west at night.",11/28/2007,38.8047222,-77.0472222
 11/5/2007 23:00,auburn,Michigan,United States,triangle,60,1 minute,"Triangle shaped with 3 bright white lights and one red on I-75 through Auburn",11/28/2007,43.6033333,-84.0697222
 1/15/2008 00:00,sheffield lake,Ohio,United States,oval,120,2 minutes,"They never appeared there again.",1/21/2008,41.4875000,-82.1016667
@@ -32892,7 +32892,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 3/23/1999 19:22,chesapeake,Virginia,United States,oval,10,10 seconds,"It was about the size of a mid-sized car. Very Bright yellowish orange. It moved parallel to the ground.",4/2/1999,36.8188889,-76.2752778
 3/23/1999 21:15,st. petersburg,Florida,United States,chevron,4,4 seconds,"500-600 ft.chevron shaped craft moving to the NW fast at about 3500ft elevation craft had 12-16 dim white lights to the front of chevro",4/2/1999,27.7705556,-82.6794444
 3/23/1999 21:30,newport,Kentucky,United States,sphere,300,5 minutes,"Witnessed luminous bright blue sphere descend into city of Newport&#44 KY.",11/17/1999,39.0913889,-84.4958333
-3/23/2000 02:15,norridgewock (winding hill rd),Maine,United States,rectangle,900,13to15mins,"A stationary object was seen in the western horrizon. The object ommited a blinding white light. After 13 minutes the object moved east",4/1/2000,44.7130556,-69.7911111
+3/23/2000 02:15,norridgewock,Maine,United States,rectangle,900,13to15mins,"A stationary object was seen in the western horrizon. The object ommited a blinding white light. After 13 minutes the object moved east",4/1/2000,44.7130556,-69.7911111
 3/23/2000 18:00,sioux falls,South Dakota,United States,diamond,300,5 min,"2 diamond shape star colored objects.move across the SD sky silently while clocking device is off then on.",3/10/2011,43.5500000,-96.7000000
 3/23/2000 19:15,fullerton,California,United States,teardrop,600,10 min.,"STRANGE OBJECT WITH 3 FLASHING LIGHTS&#44TWO AT THE FRONT AND ONE IN THE REAR.VERY BRIGHT&#44MOVED NORTH-SOUTH THAN EASTWARD OUT OF SIGHT",4/15/2000,33.8702778,-117.9244444
 3/23/2000 19:30,providence,Rhode Island,United States,rectangle,25,20 to 25 sec,"On March 23&#44 2000 I was looking at the Big Dipper when one of the stars near the Big Dipper blinked then i saw dull orange lights comin",4/1/2000,41.8238889,-71.4133333
@@ -38939,7 +38939,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 4/26/2011 00:30,pacoima/tujunga,California,United States,disk,14400,3-4 hours on and off,"Faint red disc shape seen multiple times in a long span of time&#44 over mountains and dam.",5/2/2011,34.226148,-118.380748
 4/26/2011 00:30,stillwater,Minnesota,United States,sphere,60,less then a minute,"greenish white orb/sphere appeared and disappeared over highway in Stillwater MN around 12:30 am",5/2/2011,45.0563889,-92.8058333
 4/26/2011 03:00,wilkes-barre,Pennsylvania,United States,rectangle,10,10 seconds,"Rectangular object with round lights in it flying low altitude at a high rate of speed over Wilkes-Barre sky&#39s",5/2/2011,41.2458333,-75.8816667
-4/26/2011 13:44,weston (i-75),Florida,United States,sphere,120,2 minutes,"Dancing UFO&#39s",5/2/2011,26.1000000,-80.4000000
+4/26/2011 13:44,weston,Florida,United States,sphere,120,2 minutes,"Dancing UFO&#39s",5/2/2011,26.1000000,-80.4000000
 4/26/2011 16:00,santarem,,Portugal,light,120,2 minutes,"goodday&#33 =) my boyfriend and i were giving a walk and we were trying out the zoom of his new video camera on a plane and right next to",7/17/2011,39.236669,-8.685994
 4/26/2011 21:00,rockland,New York,United States,light,10,10 sec,"odd",5/2/2011,41.9452778,-74.9133333
 4/26/2011 22:05,screven,Georgia,United States,fireball,120,2 min,"orange and white fireball",5/2/2011,31.4861111,-82.0172222
@@ -40090,7 +40090,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 4/5/2010 00:00,lexington,Ohio,United States,disk,300,4 or 5 mins,"large unknown object with red outer lights followed uss in the night",4/13/2010,40.6786111,-82.5825000
 4/5/2010 18:45,lynn,Massachusetts,United States,circle,30,30 seconds,"I seen a bright white circular object moving to the left&#44 right&#44 zig-zag&#44 and circular motions.",4/13/2010,42.4666667,-70.9500000
 4/5/2010 19:00,cancun,,Mexico,triangle,25200,7 hours,"The object was glowing green and red. At times it went to just green and then white. Was usually green for the most part with red",4/13/2010,21.161908,-86.851528
-4/5/2010 20:20,highway 85 (southbound),Arizona,United States,diamond,180,3 minutes,"Diamond shape lights while driving south on hwy 85 (AZ)",4/13/2010,32.665682,-112.858631
+4/5/2010 20:20,highway 85,Arizona,United States,diamond,180,3 minutes,"Diamond shape lights while driving south on hwy 85 (AZ)",4/13/2010,32.665682,-112.858631
 4/5/2010 22:00,marshfield,Massachusetts,United States,sphere,180,half hour,"witnessed drones watching us from a couple miles above the ocean must read",4/13/2010,42.0916667,-70.7061111
 4/5/2010 22:10,scott,Arkansas,United States,light,480,5-8 minutes,"Green Light",4/13/2010,34.6963889,-92.0961111
 4/5/2010 22:30,burnsville,North Carolina,United States,unknown,1,1 second,"super fast &#44 moving light",4/13/2010,35.9172222,-82.3011111
@@ -46870,7 +46870,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 6/1/1978 22:00,bourbonnais,Illinois,United States,disk,900,15 min,"I remember this experience though I was very young&#44 my brother (who is 8 yrs. older) and I were just talking about this sighting this e",8/28/2003,41.1416667,-87.8750000
 6/1/1978 22:00,florida keys,Florida,United States,unknown,900,15 min,"A unidentified erratically flying object spotted at night in the Florida Keys in the late seventies",2/14/2008,24.555736,-81.782654
 6/1/1978 22:00,paxton,Illinois,United States,unknown,5,5 seconds,"White beacon of rotating white light followed by the same in green",6/18/2004,40.4602778,-88.0952778
-6/1/1978 22:00,sterling park (near dulles airport),Virginia,United States,disk,1800,30 minutes,"My brother&#44 sister and I saw several strange lights in the sky descending slowing towards the ground. My sis and bro looked thru binoc",1/7/2000,39.0036111,-77.4008333
+6/1/1978 22:00,sterling park,Virginia,United States,disk,1800,30 minutes,"My brother&#44 sister and I saw several strange lights in the sky descending slowing towards the ground. My sis and bro looked thru binoc",1/7/2000,39.0036111,-77.4008333
 6/1/1978 22:00,victoria,Texas,United States,oval,30,30 seconds,"UFO seen over Texas skys in the late &#3970s",6/12/2002,28.8050000,-97.0033333
 6/1/1978 22:30,dryden,Ontario,Canada,sphere,240,2-4 min,"2 ufo&#39s over Dryden&#44Ont&#44late 70&#39s",3/23/2004,49.783333,-92.833333
 6/1/1979 00:00,minot,North Dakota,United States,rectangle,240,3-4 mins,"Large rectangular object hovering over Minot Air Base&#44 ND.",12/9/2003,48.2325000,-101.2958333
@@ -50994,7 +50994,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 6/24/1995 14:30,snoqualmie,Washington,United States,unknown,2,2 sec.,"Young man driving E on I-90 witnesses streamlined&#44 delta-shaped obj. streak across clear&#44 blue sky. Excellent rept.",11/2/1999,47.5288889,-121.8241667
 6/24/1995 21:52,florence,Alabama,United States,unknown,2,2 sec.,"Man &amp; son witness &quot;round&#44 green object&#44 like circle inside circle&quot; streak across sky&#44 disappear. Very clear view. Good rept..",11/2/1999,34.7997222,-87.6772222
 6/24/1995 22:30,farmingdale,New York,United States,unknown,600,10 min.,"Young man &amp; wife see blue flash&#44 then small disc hovering over their truck&#44 but below overcast. Pursued it on foot. Good rept.",11/2/1999,40.7325000,-73.4458333
-6/24/1996 00:30,aurora,Colorado,United States,Changed,3600,1 hour,"Obj. hovered 100 ft above car. Red&#44 blue lights on corners. Changed shape from cube to pyramid to triangle. Landed 800 ft away.",11/2/1999,39.7294444,-104.8313889
+6/24/1996 00:30,aurora,Colorado,United States,changing,3600,1 hour,"Obj. hovered 100 ft above car. Red&#44 blue lights on corners. Changed shape from cube to pyramid to triangle. Landed 800 ft away.",11/2/1999,39.7294444,-104.8313889
 6/24/1996 15:00,smryna,Georgia,United States,oval,300,5 minutes,"silver&#44 blimp-shaped object seen over downtown Atlanta",9/9/2004,33.883993,-84.514376
 6/24/1997 01:57,san francisco,California,United States,oval,10,5-10 seconds,"close oval white object transforms self to a circular green object - both had trails of same color",1/28/1999,37.7750000,-122.4183333
 6/24/1997 21:00,fresno,California,United States,light,3600,1hour,"western sky i observed a bright light just after the setting sun.about 9:pm",11/20/2002,36.7477778,-119.7713889
@@ -55547,7 +55547,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 7/13/2006 11:00,avon,Colorado,United States,light,60,1 minute,"Two solid white lights flying in formation over the Colorado Rockies",7/16/2006,39.6313889,-106.5216667
 7/13/2006 21:00,los angeles,California,United States,triangle,7200,2 hrs,"I watched this event for about 2 hours. It first appeared as a very intense bright light just over the Grifith Park observatory in Los",10/30/2006,34.0522222,-118.2427778
 7/13/2006 22:30,litchfield,South Carolina,United States,triangle,3600,1 hour - on and off,"Bright orange blinking lights over the Atlantic ocean off of the coast of South Carolina.",7/16/2006,33.47022,-79.095404
-7/13/2006 22:30,pawleys island (near litchfield),South Carolina,United States,light,1800,30 min - sporadically,"Sporadic&#44 orange lights&#44 unlike any common aircraft appear over the ocean",10/30/2006,33.4330556,-79.1216667
+7/13/2006 22:30,pawleys island,South Carolina,United States,light,1800,30 min - sporadically,"Sporadic&#44 orange lights&#44 unlike any common aircraft appear over the ocean",10/30/2006,33.4330556,-79.1216667
 7/13/2006 22:39,maywood,California,United States,unknown,120,2 minutes,"I wouldn&#39t quite say crafts but that I would label them objects. I was laying down on my lawn looking up at the stars and wondering abo",7/16/2006,33.9866667,-118.1844444
 7/13/2006 22:45,leesburg,Georgia,United States,formation,120,1 to 2 minutes,"5 to 6 round lights converging into one object that disappeared and then reappeared as one shortly thereafter only to disappear again",7/16/2006,31.7319444,-84.1708333
 7/13/2006 22:48,ankara,,Turkey,flash,180,a bout 3 minutes,"2 UFO&#39s&#44 one had a problem and the other saved it",7/16/2006,39.92077,32.85411
@@ -63463,7 +63463,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 7/9/2005 23:30,wilderness state park,Michigan,United States,light,120,1-2 min,"While sitting on the beach of lake michigan (looking west) we saw a light moving slowly from the horizon in a straight line towards 12:",10/20/2005,45.739044,-84.903263
 7/9/2006 00:00,calgary,Alberta,Canada,circle,7200,2 hours,"Three lights circling one another. ((NUFORC Note: Possible advertising lights. PD))",7/16/2006,51.083333,-114.083333
 7/9/2006 00:25,san jacinto,California,United States,unknown,20,20 sec,"Object moving in an S shape at a high rate of speed",7/16/2006,33.7838889,-116.9577778
-7/9/2006 04:00,i-5 (california,California,United States,triangle,1800,30 minutes,"UFO spotted on HWY 5 in CA near LA",5/15/2013,36.862944,-120.782431
+7/9/2006 04:00,i-5,California,United States,triangle,1800,30 minutes,"UFO spotted on HWY 5 in CA near LA",5/15/2013,36.862944,-120.782431
 7/9/2006 09:30,addy,Washington,United States,unknown,600,10 min,"have seen from calif. the space shuttle reentering for landing. Theese objects looked exactly the same. comming from west to east obser",7/16/2006,48.3561111,-117.8363889
 7/9/2006 19:45,dublin,California,United States,unknown,720,12 minutes,"low flying&#44 very loud piston type engine&#44 extremely slow moving craft&#44 unseen",10/30/2006,37.7022222,-121.9347222
 7/9/2006 22:30,alexandria,Virginia,United States,disk,30,30 seconds,"Cluster of disc-shaped objects that passed within 30 seconds",7/16/2006,38.8047222,-77.0472222
@@ -72160,7 +72160,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 9/10/1995 12:35,las vegas,Nevada,United States,unknown,480,8 min.,"Man&#44 wife&#44 son witness tiny&#44 milk-white sphere hovering in cloudless sky. Streaks off to NW. 15 min. later see silver disc overhead.",11/2/1999,36.1750000,-115.1363889
 9/10/1995 20:00,effingham,Illinois,United States,cigar,30,30sec,"ILLinois. siting",6/18/2004,39.1200000,-88.5433333
 9/10/1995 21:12,quebec,Quebec,Canada,light,960,16 mins,"fast white light decelerating to a complete stop and taking off again at a very slow pace&#44then shutdown.",12/2/2000,46.8,-71.25
-9/10/1995 21:12,valcatier (military base),Quebec,Canada,light,900,15mins,"white light coming super fast to a stop then taking off again slowly and shutting off its light like a switch.",12/2/2000,46.893056,-71.493056
+9/10/1995 21:12,valcatier,Quebec,Canada,light,900,15mins,"white light coming super fast to a stop then taking off again slowly and shutting off its light like a switch.",12/2/2000,46.893056,-71.493056
 9/10/1995 22:00,auburn,Washington,United States,unknown,1500,25 min.,"Young woman sees &quot;black boomerang w/ dim lights&quot; descend in sky. Then&#44 she w/ 5 friends&#44 see triangular ship w/ 5 lights hovering.",11/2/1999,47.3075000,-122.2272222
 9/10/1996 23:45,siloam springs,Arkansas,United States,triangle,300,5 minutes,"three lights moving in a triangle formation&#44 no sound&#44 all three lights went out at the same moment",7/26/2002,36.1880556,-94.5402778
 9/10/1997 16:00,lierskogen,,Norway,unknown,180,3 min.,"It looked as a pointed horseshoe. It was full daylight&#44 and it had a lighter shade than the rest of the sky. There was no clouds at all",4/26/1999,59.819814,10.330936
@@ -74570,7 +74570,7 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 9/16/2012 21:00,lincoln city,Oregon,United States,sphere,300,5 minutes,"My wife and I spent a few days on the coast in Lincoln City&#44 OR. On September 16th around 9 p.m. my darling wife and I were outside on",9/24/2012,44.9583333,-124.0166667
 9/16/2012 21:00,windsor,Quebec,Canada,fireball,600,10 minutes,"Fireballs over Windsor&#44 Ontario.",9/24/2012,45.583333,-72
 9/16/2012 21:10,lincoln city,Oregon,United States,light,180,3 minutes,"Five red lights in night sky.",9/24/2012,44.9583333,-124.0166667
-9/16/2012 22:00,michigan (upper),Michigan,United States,light,120,1 1/2 minutes,"Lights in the night sky.",5/15/2013,44.314844,-85.602364
+9/16/2012 22:00,michigan,Michigan,United States,light,120,1 1/2 minutes,"Lights in the night sky.",5/15/2013,44.314844,-85.602364
 9/16/2012 22:00,oakland,California,United States,fireball,4,3-4 seconds,"Brilliant Orange Light Streaks Horizontally Across the Night Sky in Oakland&#44 CA - Sept 16&#44 2012",9/24/2012,37.8044444,-122.2697222
 9/16/2012 22:20,charleston,West Virginia,United States,unknown,900,15 minutes,"Strange Set of 2 Lights In The Sky Located Off Campbells Creek Drive&#44 Charleston WV",9/24/2012,38.3497222,-81.6327778
 9/16/2013 00:00,green bay,Wisconsin,United States,other,900,15 minutes,"Odd Constellation Dances in Sky for 20 Minutes&#44 then Returns to Original Odd Constellation Form.",9/30/2013,44.5191667,-88.0197222
@@ -79437,10 +79437,10 @@ datetime,city,state,country,shape,duration (seconds),duration (hours/min),commen
 9/9/1979 22:00,mount wilson observatory,California,United States,sphere,10,10 seconds,"i was &quot;called&quot; to visit a ufo on mount wilson while i lived in Glendale&#44California.As i rounded the last large curve on red box roa",5/24/2005,34.225287,-118.057297
 9/9/1980 20:30,brick,New Jersey,United States,changing,600,10 minutes,"Five spheres witnessed in the evening sky in Brick&#44 New Jersey.",3/9/2004,40.057838,-74.137183
 9/9/1982 16:10,mount kisco,New York,United States,sphere,30,30 sec,"light blue sphere connected to glowing red/orange cylinder at rear&#44 travelling south.",3/21/2003,41.2041667,-73.7275000
-9/9/1984 22:00,california (entire west coast),California,United States,cigar,30,hours,"lots of &quot;them &quot;are already here&#44I saw so. none below apply&#44was very clear shape&#44orange/red&#44in space",1/19/2005,36.778261,-119.417932
+9/9/1984 22:00,california,California,United States,cigar,30,hours,"lots of &quot;them &quot;are already here&#44I saw so. none below apply&#44was very clear shape&#44orange/red&#44in space",1/19/2005,36.778261,-119.417932
 9/9/1988 21:50,dolly sods wilderness area,West Virginia,United States,cigar,1200,15-20 minutes,"Witnessed &quot;military&quot;; C-130 releasing dozens of parachutists to meet with cigar-shaped UFO.",5/15/2013,38.597626,-80.454903
 9/9/1994 06:30,chico,California,United States,fireball,7,5-7seconds,"large solid spherical&#44 bright emerald green with yellow fiery tail&#44 coming across sky at a slow downward angle. No impact felt or hear",10/2/1999,39.7286111,-121.8363889
-9/9/1995 00:30,st. charles (1.5 mi north of&#44 randall road),Illinois,United States,chevron,600,5-10 minutes,"First appeared as a bright white light like an approaching airliner&#44seen from a vehicle traveling S.on Randall Rd. Moonlight night. Eas",4/2/1999,41.9141667,-88.3086111
+9/9/1995 00:30,st. charles,Illinois,United States,chevron,600,5-10 minutes,"First appeared as a bright white light like an approaching airliner&#44seen from a vehicle traveling S.on Randall Rd. Moonlight night. Eas",4/2/1999,41.9141667,-88.3086111
 9/9/1995 22:50,silverdale,Washington,United States,unknown,2,2 sec.,"Man outside smoking witnesses 3 &quot;dull orange&quot; circular craft streak overhead to west. Each approx. 1/4 diameter of full moon.",11/2/1999,47.6447222,-122.6936111
 9/9/1996 05:30,savannah,Georgia,United States,disk,30,30 sec.,"Unable to sleep&#44 looking out window&#44 became aware of something coming over top of building&#44 lit from beneath&#44 almost luminescent. Slowl",10/2/1999,32.0833333,-81.1000000
 9/9/1996 08:30,san francisco,California,United States,oval,3602,seconds/1 hour,"I have over three million miles on AA alone and fly everyday. As we flew from sanfran the normal turn is to the north over the city an",10/27/2004,37.7750000,-122.4183333
