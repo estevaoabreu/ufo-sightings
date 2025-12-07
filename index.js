@@ -3,7 +3,8 @@ mapboxgl.accessToken =
 
 const clusterToggle = document.getElementById("cluster-toggle");
 let groupSightings = clusterToggle.checked;
-let details = document.getElementById("details");
+const detailsPanel = document.getElementById("details-panel");
+const detailsContent = document.getElementById("details");
 
 clusterToggle.addEventListener("change", () => {
   groupSightings = clusterToggle.checked;
@@ -23,6 +24,26 @@ let ufoFeatures = [];
 let allFeatures = [];
 let countryToStatesMap = {};
 let countryStateToShapesMap = {};
+let activePopup = null;
+let popupClickListener = false;
+
+const firstNames = ["Alex", "Jordan", "Morgan", "Casey", "Riley", "Taylor", "Dakota", "Quinn", "Avery", "Cameron", "Blake", "Skylar", "River", "Sam", "Jamie", "Whitney", "Reese", "Phoenix", "Sage", "Storm"];
+const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"];
+
+function generateRandomName(seed) {
+  const hash = seed.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
+  const firstIdx = Math.abs(hash % firstNames.length);
+  const lastIdx = Math.abs((hash / firstNames.length | 0) % lastNames.length);
+  return `${firstNames[firstIdx]} ${lastNames[lastIdx]}`;
+}
+
+function getRandomAvatarUrl(seed) {
+  return `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(seed)}`;
+}
+
+function closeDetailsPanel() {
+  detailsPanel.classList.add("hidden");
+}
 
 function populateFilters(rows) {
   const countries = new Set();
@@ -105,7 +126,6 @@ function updateShapeFilterOptions() {
   shapeSelect.value = ""; 
 }
 
-
 function applyFilters() {
   const country = document.getElementById("country-filter").value;
   const state = document.getElementById("state-filter").value;
@@ -127,6 +147,12 @@ function applyFilters() {
 function setupFilterListeners() {
   ["country-filter", "state-filter", "shape-filter"].forEach((id) => {
     document.getElementById(id).addEventListener("change", (e) => {
+      closeDetailsPanel();
+      if (activePopup) {
+        activePopup.remove();
+        activePopup = null;
+      }
+      
       if (id === "country-filter") {
         const selectedCountry = e.target.value;
         updateStateFilterVisibility(selectedCountry);
@@ -143,7 +169,6 @@ function setupFilterListeners() {
     });
   });
   
-  // New listener for state filter change to handle map zooming
   document.getElementById("state-filter").addEventListener("change", (e) => {
       zoomToState(e.target.value);
   });
@@ -270,7 +295,8 @@ map.on("load", () => {
         shape: d.shape || "",
         datetime: d.datetime,
         comments: d.comments,
-        duration: d.durationMinutes || d.durationSeconds || null,
+        durationSeconds: d.durationSeconds,
+        durationFull: d.durationFull,
       },
     }));
 
@@ -297,13 +323,13 @@ map.on("load", () => {
         commonShape;
 
       const durations = features
-        .map((f) => parseFloat(f.properties.duration))
+        .map((f) => parseFloat(f.properties.durationSeconds))
         .filter((d) => !isNaN(d));
       const avgDuration = durations.length
         ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1)
         : "N/A";
       document.querySelector("#avg-duration .stat-value").textContent =
-        avgDuration + (avgDuration !== "N/A" ? " min" : "");
+        avgDuration + (avgDuration !== "N/A" ? " seconds" : "");
     }
 
     updateStats(allFeatures);
@@ -320,30 +346,120 @@ map.on("load", () => {
     map.on("mouseenter", "unclustered-point", (e) => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
-      const { city, state, country, datetime, comments, shape } = f.properties;
+      let { city, state, country, datetime, shape, durationFull } = f.properties;
+      
+      city = city.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+      const dateObj = new Date(datetime);
+      const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('en-US') : 'Unknown';
+      const formattedTime = !isNaN(dateObj) ? dateObj.toLocaleTimeString('en-US') : 'N/A';
+      
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(
           `<div class='ufo-box'>
-            <h3>UFO Sighting</h3>
-            <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""}
-          <br>${country || ""}</p>
-            <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
-            <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
-            <p><strong>Comments:</strong> ${comments || "No comments"}</p>
+            <h3>UFO Sighting Details</h3>
+            <div class='sighting-info'>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>📍</div>
+                <div>
+                  <div class='sighting-item-label'>Location</div>
+                  <div class='sighting-item-value'>${city || 'Unknown'}${state ? ', ' + state : ''}${country ? ', ' + country : ''}</div>
+                </div>
+              </div>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>📅</div>
+                <div>
+                  <div class='sighting-item-label'>Date</div>
+                  <div class='sighting-item-value'>${formattedDate}</div>
+                </div>
+              </div>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>🕐</div>
+                <div>
+                  <div class='sighting-item-label'>Time</div>
+                  <div class='sighting-item-value'>${formattedTime}</div>
+                </div>
+              </div>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>🛸</div>
+                <div>
+                  <div class='sighting-item-label'>Shape</div>
+                  <div class='sighting-item-value'>${shape || 'Unknown'}</div>
+                </div>
+              </div>
+              <div class='sighting-item'>
+                <div class='sighting-item-icon'>⏱️</div>
+                <div>
+                  <div class='sighting-item-label'>Duration</div>
+                  <div class='sighting-item-value'>${durationFull ? durationFull : 'Unknown'}</div>
+                </div>
+              </div>
+            </div>
           </div>`
         )
         .addTo(map);
+      
+      activePopup = popup;
     });
 
     map.on("mouseleave", "unclustered-point", () => {
       map.getCanvas().style.cursor = "";
-      popup.remove();
+    });
+
+    map.on("click", "unclustered-point", (e) => {
+      e.originalEvent.stopPropagation();
+      popupClickListener = true;
+      
+      const f = e.features[0];
+      const { comments } = f.properties;
+      
+      if (comments) {
+        const commenterName = generateRandomName(comments);
+        const avatarUrl = getRandomAvatarUrl(comments);
+        
+        detailsContent.innerHTML = `
+          <div class='comment-card'>
+            <img src='${avatarUrl}' alt='${commenterName}' class='comment-image' />
+            <div class='comment-details'>
+              <p class='comment-name'>${commenterName}</p>
+              <p class='comment-text'>${comments}</p>
+            </div>
+          </div>
+        `;
+        detailsPanel.classList.remove("hidden");
+      } else {
+        closeDetailsPanel();
+      }
+    });
+
+    map.on("click", (e) => {
+      if (popupClickListener) {
+        popupClickListener = false;
+        return;
+      }
+      
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ["unclustered-point"],
+      });
+      
+      if (features.length === 0) {
+        closeDetailsPanel();
+        if (activePopup) {
+          activePopup.remove();
+          activePopup = null;
+        }
+      }
     });
 
     map.on("click", "clusters", (e) => {
-      details.classList.add("hidden");
       if (!groupSightings) return;
+      e.originalEvent.stopPropagation();
+      closeDetailsPanel();
+      if (activePopup) {
+        activePopup.remove();
+        activePopup = null;
+      }
       const features = map.queryRenderedFeatures(e.point, {
         layers: ["clusters"],
       });
@@ -432,6 +548,12 @@ mapButtons.forEach((btn, index) => {
     shapesDiv.style.display = index === 2 ? "block" : "none";
     monthlyDiv.style.display = index === 3 ? "block" : "none";
 
+    closeDetailsPanel();
+    if (activePopup) {
+      activePopup.remove();
+      activePopup = null;
+    }
+
     if (index === 0) {
       map.resize();
       map.easeTo({ center: initialCenter, zoom: initialZoom, duration: 1000 });
@@ -442,161 +564,39 @@ mapButtons.forEach((btn, index) => {
   });
 });
 
-/**
- * D3 Connected Scatterplot for Timeline Visualization
- * Inspired by: https://observablehq.com/@d3/connected-scatterplot/2
- * Features:
- * - Line and points animate together
- * - Complete animation in 1000ms
- * - Smooth transitions on interaction
- * - Responsive sizing
- */
 function drawTimelineChart(features) {
-  // Clear previous chart
-  timelineDiv.innerHTML = "";
-  
-  // Process data: count sightings per year
-  const yearCounts = {};
-  features.forEach((f) => {
-    const year = new Date(f.properties.datetime).getFullYear();
-    if (!isNaN(year)) {
-      yearCounts[year] = (yearCounts[year] || 0) + 1;
-    }
+  const ctx = document.getElementById("timeline-chart").getContext("2d");
+  const years = features
+    .map((f) => new Date(f.properties.datetime).getFullYear())
+    .filter((y) => !isNaN(y));
+  const counts = {};
+  years.forEach((y) => (counts[y] = (counts[y] || 0) + 1));
+  const sortedYears = Object.keys(counts).sort();
+  const values = sortedYears.map((y) => counts[y]);
+  if (timelineChart) timelineChart.destroy();
+  timelineChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: sortedYears,
+      datasets: [
+        {
+          label: "Sightings per year",
+          data: values,
+          borderWidth: 2,
+          tension: 0.2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } },
+      },
+      plugins: { legend: { labels: { color: "white" } } },
+    },
   });
-  
-  // Convert to array of objects
-  const data = Object.entries(yearCounts)
-    .map(([year, count]) => ({ year: parseInt(year), count: parseInt(count) }))
-    .sort((a, b) => a.year - b.year);
-  
-  if (data.length === 0) return;
-  
-  // Dimensions
-  const margin = { top: 30, right: 30, bottom: 50, left: 70 };
-  const containerRect = timelineDiv.getBoundingClientRect();
-  const width = containerRect.width - margin.left - margin.right;
-  const height = containerRect.height - margin.top - margin.bottom;
-  
-  // Scales
-  const xScale = d3.scaleLinear()
-    .domain(d3.extent(data, d => d.year))
-    .range([0, width]);
-  
-  const yScale = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.count)])
-    .range([height, 0]);
-  
-  // Create SVG
-  const svg = d3.select("#timeline-container")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
-  
-  const g = svg.append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-  
-  // Create line generator
-  const line = d3.line()
-    .x(d => xScale(d.year))
-    .y(d => yScale(d.count));
-  
-  // Add grid lines with gray color and reduced opacity
-  g.append("g")
-    .attr("class", "grid")
-    .call(d3.axisLeft(yScale)
-      .tickSize(-width)
-      .tickFormat("")
-    )
-    .selectAll("line")
-    .attr("stroke", "rgba(150, 150, 150, 0.4)")
-    .attr("stroke-width", 1);
-  
-  // Add path line with animation (1000ms)
-  const path = g.append("path")
-    .datum(data)
-    .attr("class", "line")
-    .attr("d", line);
-  
-  // Animate line drawing - completes at 1000ms
-  const pathLength = path.node().getTotalLength();
-  path
-    .attr("stroke-dasharray", pathLength)
-    .attr("stroke-dashoffset", pathLength)
-    .transition()
-    .duration(1000)
-    .ease(d3.easeLinear)
-    .attr("stroke-dashoffset", 0);
-  
-  // Add circles (data points) with synchronized animation (also completes at 1000ms)
-  g.selectAll(".dot")
-    .data(data)
-    .enter()
-    .append("circle")
-    .attr("class", "dot")
-    .attr("cx", d => xScale(d.year))
-    .attr("cy", d => yScale(d.count))
-    .attr("r", 0)
-    .attr("opacity", 0)
-    .on("mouseover", function(event, d) {
-      d3.select(this)
-        .transition()
-        .duration(300)
-        .attr("r", 7)
-        .attr("filter", "drop-shadow(0 0 6px rgba(100, 200, 255, 0.8))");
-      
-      // Show tooltip
-      g.append("text")
-        .attr("class", "tooltip-text")
-        .attr("x", xScale(d.year))
-        .attr("y", yScale(d.count) - 20)
-        .attr("text-anchor", "middle")
-        .attr("fill", "rgba(255, 255, 255, 0.9)")
-        .attr("font-size", "13px")
-        .attr("font-weight", "bold")
-        .attr("pointer-events", "none")
-        .style("text-shadow", "0 0 4px rgba(0, 0, 0, 0.8)")
-        .text(`${d.year}: ${d.count} sightings`)
-        .transition()
-        .duration(200)
-        .attr("opacity", 1);
-    })
-    .on("mouseout", function() {
-      d3.select(this)
-        .transition()
-        .duration(300)
-        .attr("r", 4)
-        .attr("filter", "");
-      
-      g.selectAll(".tooltip-text").remove();
-    })
-    .transition()
-    .delay((d, i) => (i / data.length) * 1000)
-    .duration(1000)
-    .ease(d3.easeElasticOut)
-    .attr("r", 4)
-    .attr("opacity", 1);
-  
-  // X axis
-  g.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
-    .append("text")
-    .attr("class", "axis-label")
-    .attr("x", width / 2)
-    .attr("y", 40)
-    .attr("text-anchor", "middle")
-    .text("Year");
-  
-  // Y axis
-  g.append("g")
-    .call(d3.axisLeft(yScale))
-    .append("text")
-    .attr("class", "axis-label")
-    .attr("transform", "rotate(-90)")
-    .attr("x", -height / 2)
-    .attr("y", -50)
-    .attr("text-anchor", "middle")
-    .text("Number of Sightings");
 }
 
 function drawShapesChart(features) {
