@@ -24,6 +24,8 @@ let ufoFeatures = [];
 let allFeatures = [];
 let countryToStatesMap = {};
 let countryStateToShapesMap = {};
+let activePopup = null;
+let popupClickListener = false;
 
 // Random name generator
 const firstNames = ["Alex", "Jordan", "Morgan", "Casey", "Riley", "Taylor", "Dakota", "Quinn", "Avery", "Cameron", "Blake", "Skylar", "River", "Sam", "Jamie", "Whitney", "Reese", "Phoenix", "Sage", "Storm"];
@@ -148,6 +150,10 @@ function setupFilterListeners() {
   ["country-filter", "state-filter", "shape-filter"].forEach((id) => {
     document.getElementById(id).addEventListener("change", (e) => {
       closeDetailsPanel();
+      if (activePopup) {
+        activePopup.remove();
+        activePopup = null;
+      }
       
       if (id === "country-filter") {
         const selectedCountry = e.target.value;
@@ -392,16 +398,19 @@ map.on("load", () => {
           </div>`
         )
         .addTo(map);
+      
+      activePopup = popup;
     });
 
     map.on("mouseleave", "unclustered-point", () => {
       map.getCanvas().style.cursor = "";
-      popup.remove();
+      // Don't remove popup on mouseleave, only on other interactions
     });
 
     // Click event to show avatar and comment
     map.on("click", "unclustered-point", (e) => {
       e.originalEvent.stopPropagation();
+      popupClickListener = true;
       
       const f = e.features[0];
       const { comments } = f.properties;
@@ -427,6 +436,11 @@ map.on("load", () => {
 
     // Close details panel when clicking anywhere else on map
     map.on("click", (e) => {
+      if (popupClickListener) {
+        popupClickListener = false;
+        return;
+      }
+      
       // Check if click was on a point feature
       const features = map.queryRenderedFeatures(e.point, {
         layers: ["unclustered-point"],
@@ -435,6 +449,10 @@ map.on("load", () => {
       // Only keep panel open if clicked on a point, otherwise close
       if (features.length === 0) {
         closeDetailsPanel();
+        if (activePopup) {
+          activePopup.remove();
+          activePopup = null;
+        }
       }
     });
 
@@ -442,6 +460,10 @@ map.on("load", () => {
       if (!groupSightings) return;
       e.originalEvent.stopPropagation();
       closeDetailsPanel();
+      if (activePopup) {
+        activePopup.remove();
+        activePopup = null;
+      }
       const features = map.queryRenderedFeatures(e.point, {
         layers: ["clusters"],
       });
@@ -532,6 +554,10 @@ mapButtons.forEach((btn, index) => {
 
     // Close details panel when changing tabs
     closeDetailsPanel();
+    if (activePopup) {
+      activePopup.remove();
+      activePopup = null;
+    }
 
     if (index === 0) {
       map.resize();
