@@ -445,6 +445,11 @@ mapButtons.forEach((btn, index) => {
 /**
  * D3 Connected Scatterplot for Timeline Visualization
  * Inspired by: https://observablehq.com/@d3/connected-scatterplot/2
+ * Features:
+ * - Line animation on load
+ * - Point entrance animations
+ * - Smooth transitions on interaction
+ * - Responsive sizing
  */
 function drawTimelineChart(features) {
   // Clear previous chart
@@ -504,13 +509,23 @@ function drawTimelineChart(features) {
       .tickFormat("")
     );
   
-  // Add path line
-  g.append("path")
+  // Add path line with animation
+  const path = g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("d", line);
   
-  // Add circles (data points)
+  // Animate line drawing (stroke-dasharray animation)
+  const pathLength = path.node().getTotalLength();
+  path
+    .attr("stroke-dasharray", pathLength)
+    .attr("stroke-dashoffset", pathLength)
+    .transition()
+    .duration(1500)
+    .ease(d3.easeLinear)
+    .attr("stroke-dashoffset", 0);
+  
+  // Add circles (data points) with staggered entrance animation
   g.selectAll(".dot")
     .data(data)
     .enter()
@@ -518,32 +533,46 @@ function drawTimelineChart(features) {
     .attr("class", "dot")
     .attr("cx", d => xScale(d.year))
     .attr("cy", d => yScale(d.count))
-    .attr("r", 4)
+    .attr("r", 0)
+    .attr("opacity", 0)
     .on("mouseover", function(event, d) {
       d3.select(this)
         .transition()
-        .duration(200)
-        .attr("r", 6);
+        .duration(300)
+        .attr("r", 7)
+        .attr("filter", "drop-shadow(0 0 6px rgba(100, 200, 255, 0.8))");
       
       // Show tooltip
       g.append("text")
-        .attr("class", "tooltip")
+        .attr("class", "tooltip-text")
         .attr("x", xScale(d.year))
-        .attr("y", yScale(d.count) - 15)
+        .attr("y", yScale(d.count) - 20)
         .attr("text-anchor", "middle")
         .attr("fill", "rgba(255, 255, 255, 0.9)")
-        .attr("font-size", "12px")
+        .attr("font-size", "13px")
         .attr("font-weight", "bold")
-        .text(`${d.year}: ${d.count} sightings`);
+        .attr("pointer-events", "none")
+        .style("text-shadow", "0 0 4px rgba(0, 0, 0, 0.8)")
+        .text(`${d.year}: ${d.count} sightings`)
+        .transition()
+        .duration(200)
+        .attr("opacity", 1);
     })
     .on("mouseout", function() {
       d3.select(this)
         .transition()
-        .duration(200)
-        .attr("r", 4);
+        .duration(300)
+        .attr("r", 4)
+        .attr("filter", "");
       
-      g.select(".tooltip").remove();
-    });
+      g.selectAll(".tooltip-text").remove();
+    })
+    .transition()
+    .delay((d, i) => i * 50)
+    .duration(800)
+    .ease(d3.easeElasticOut)
+    .attr("r", 4)
+    .attr("opacity", 1);
   
   // X axis
   g.append("g")
