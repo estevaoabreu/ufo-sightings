@@ -53,20 +53,20 @@ function populateFilters(rows) {
   const shapes = new Set();
   const years = [];
 
-  countryToStatesMap = {}; 
+  countryToStatesMap = {};
   countryStateToShapesMap = {};
 
   rows.forEach((d) => {
     if (d.country) countries.add(d.country);
-    
-    if (d.state && d.country) { 
-        states.add(d.state);
-        if (!countryToStatesMap[d.country]) {
-            countryToStatesMap[d.country] = new Set();
-        }
-        countryToStatesMap[d.country].add(d.state);
+
+    if (d.state && d.country) {
+      states.add(d.state);
+      if (!countryToStatesMap[d.country]) {
+        countryToStatesMap[d.country] = new Set();
+      }
+      countryToStatesMap[d.country].add(d.state);
     }
-    
+
     if (d.shape) {
       shapes.add(d.shape);
       const key = `${d.country || ''}-${d.state || ''}`;
@@ -75,7 +75,7 @@ function populateFilters(rows) {
       }
       countryStateToShapesMap[key].add(d.shape);
     }
-    
+
     if (d.datetime) years.push(new Date(d.datetime).getFullYear());
   });
 
@@ -96,11 +96,11 @@ function updateShapeFilterOptions() {
   const country = document.getElementById("country-filter").value;
   const state = document.getElementById("state-filter").value;
   const shapeSelect = document.getElementById("shape-filter");
-  
+
   shapeSelect.innerHTML = '<option value="">All shapes</option>';
-  
+
   const key = `${country || ''}-${state || ''}`;
-  
+
   let shapesToShow = [];
 
   if (countryStateToShapesMap[key]) {
@@ -120,12 +120,12 @@ function updateShapeFilterOptions() {
     }
     shapesToShow = [...allShapes].sort();
   }
-  
+
   shapesToShow.forEach(
     (s) => (shapeSelect.innerHTML += `<option value='${s}'>${s}</option>`)
   );
-  
-  shapeSelect.value = ""; 
+
+  shapeSelect.value = "";
 }
 
 function applyFilters() {
@@ -154,13 +154,13 @@ function setupFilterListeners() {
         activePopup.remove();
         activePopup = null;
       }
-      
+
       if (id === "country-filter") {
         const selectedCountry = e.target.value;
         updateStateFilterVisibility(selectedCountry);
         updateStateFilterOptions(selectedCountry);
       }
-      
+
       if (id === "country-filter" || id === "state-filter") {
         updateShapeFilterOptions();
       }
@@ -170,9 +170,9 @@ function setupFilterListeners() {
       updateCharts();
     });
   });
-  
+
   document.getElementById("state-filter").addEventListener("change", (e) => {
-      zoomToState(e.target.value);
+    zoomToState(e.target.value);
   });
 }
 
@@ -189,8 +189,8 @@ function updateStateFilterOptions(country) {
   statesToShow.forEach(
     (s) => (stateSelect.innerHTML += `<option value='${s}'>${s}</option>`)
   );
-  
-  stateSelect.value = ""; 
+
+  stateSelect.value = "";
 }
 
 function updateStateFilterVisibility(country) {
@@ -348,12 +348,18 @@ map.on("load", () => {
     map.on("mouseenter", "unclustered-point", (e) => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
-      const { city, state, country, datetime, shape, durationFull } = f.properties;
-      
+      let { city, state, country, datetime, shape, durationFull } = f.properties;
+
+      city = city.toLowerCase().split(' ');
+      const capitalized = city.map(word => {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      });
+      city = capitalized.join(' ');
+
       const dateObj = new Date(datetime);
       const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('en-US') : 'Unknown';
       const formattedTime = !isNaN(dateObj) ? dateObj.toLocaleTimeString('en-US') : 'N/A';
-      
+
       popup
         .setLngLat(f.geometry.coordinates)
         .setHTML(
@@ -399,7 +405,7 @@ map.on("load", () => {
           </div>`
         )
         .addTo(map);
-      
+
       activePopup = popup;
     });
 
@@ -412,14 +418,14 @@ map.on("load", () => {
     map.on("click", "unclustered-point", (e) => {
       e.originalEvent.stopPropagation();
       popupClickListener = true;
-      
+
       const f = e.features[0];
       const { comments } = f.properties;
-      
+
       if (comments) {
         const commenterName = generateRandomName(comments);
         const avatarUrl = getRandomAvatarUrl(comments);
-        
+
         detailsContent.innerHTML = `
           <div class='comment-card'>
             <img src='${avatarUrl}' alt='${commenterName}' class='comment-image' />
@@ -441,12 +447,12 @@ map.on("load", () => {
         popupClickListener = false;
         return;
       }
-      
+
       // Check if click was on a point feature
       const features = map.queryRenderedFeatures(e.point, {
         layers: ["unclustered-point"],
       });
-      
+
       // Only keep panel open if clicked on a point, otherwise close
       if (features.length === 0) {
         closeDetailsPanel();
@@ -740,7 +746,7 @@ function zoomToState(state) {
     }
     return;
   }
-  
+
   const features = allFeatures.filter((f) => f.properties?.state === state);
   zoomToArea(features, 8);
 }
