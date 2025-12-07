@@ -36,11 +36,9 @@ function generateRandomName(seed) {
   return `${firstNames[firstIdx]} ${lastNames[lastIdx]}`;
 }
 
-const avatarStyles = ["adventurer", "avataaars", "big-ears", "big-smile", "bottts", "croodles", "fun-emoji", "lorelei", "micah", "miniavs", "open-peeps", "personas", "pixel-art", "rings", "shapes", "thumbs"];
-
+// Use only adventurer style for consistent look
 function getRandomAvatarUrl(seed) {
-  const style = avatarStyles[Math.abs(seed.charCodeAt(0) % avatarStyles.length)];
-  return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+  return `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(seed)}`;
 }
 
 function populateFilters(rows) {
@@ -356,7 +354,7 @@ map.on("load", () => {
       popup.remove();
     });
 
-    // Click event to show Polaroid-style details
+    // Click event to show avatar and comment
     map.on("click", "unclustered-point", (e) => {
       const f = e.features[0];
       const { comments } = f.properties;
@@ -366,11 +364,11 @@ map.on("load", () => {
         const avatarUrl = getRandomAvatarUrl(comments);
         
         detailsContent.innerHTML = `
-          <div class='polaroid'>
-            <img src='${avatarUrl}' alt='${commenterName}' class='polaroid-image' />
-            <div class='polaroid-caption'>
-              <p class='polaroid-name'>${commenterName}</p>
-              <p class='polaroid-comment'>${comments}</p>
+          <div class='comment-card'>
+            <img src='${avatarUrl}' alt='${commenterName}' class='comment-image' />
+            <div class='comment-details'>
+              <p class='comment-name'>${commenterName}</p>
+              <p class='comment-text'>${comments}</p>
             </div>
           </div>
         `;
