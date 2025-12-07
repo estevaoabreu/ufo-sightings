@@ -24,6 +24,26 @@ let allFeatures = [];
 let countryToStatesMap = {};
 let countryStateToShapesMap = {};
 
+// Random name generator
+const firstNames = ["Alex", "Jordan", "Morgan", "Casey", "Riley", "Taylor", "Dakota", "Quinn", "Avery", "Cameron", "Blake", "Skylar", "River", "Sam", "Jamie", "Whitney", "Reese", "Phoenix", "Sage", "Storm"];
+const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"];
+
+function generateRandomName(seed) {
+  // Use a simple seeded random for consistency
+  const hash = seed.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
+  const firstIdx = Math.abs(hash % firstNames.length);
+  const lastIdx = Math.abs((hash / firstNames.length | 0) % lastNames.length);
+  return `${firstNames[firstIdx]} ${lastNames[lastIdx]}`;
+}
+
+// Avatar styles for DiceBear API
+const avatarStyles = ["adventurer", "avataaars", "big-ears", "big-smile", "bottts", "croodles", "fun-emoji", "lorelei", "micah", "miniavs", "open-peeps", "personas", "pixel-art", "rings", "shapes", "thumbs"];
+
+function getRandomAvatarUrl(seed) {
+  const style = avatarStyles[Math.abs(seed.charCodeAt(0) % avatarStyles.length)];
+  return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+}
+
 function populateFilters(rows) {
   const countries = new Set();
   const states = new Set();
@@ -321,18 +341,32 @@ map.on("load", () => {
       map.getCanvas().style.cursor = "pointer";
       const f = e.features[0];
       const { city, state, country, datetime, comments, shape } = f.properties;
+      
+      // Generate avatar and name if there are comments
+      let popupContent = `<div class='ufo-box'>
+        <h3>UFO Sighting</h3>
+        <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""}<br>${country || ""}</p>
+        <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
+        <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>`;
+      
+      if (comments) {
+        const commenterName = generateRandomName(comments);
+        const avatarUrl = getRandomAvatarUrl(comments);
+        popupContent += `
+        <div class='comment-section'>
+          <img src='${avatarUrl}' alt='${commenterName}' class='comment-avatar' />
+          <div class='comment-info'>
+            <p class='comment-author'>${commenterName}</p>
+            <p class='comment-text'>${comments}</p>
+          </div>
+        </div>`;
+      }
+      
+      popupContent += `</div>`;
+      
       popup
         .setLngLat(f.geometry.coordinates)
-        .setHTML(
-          `<div class='ufo-box'>
-            <h3>UFO Sighting</h3>
-            <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""
-          }<br>${country || ""}</p>
-            <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
-            <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
-            <p><strong>Comments:</strong> ${comments || "No comments"}</p>
-          </div>`
-        )
+        .setHTML(popupContent)
         .addTo(map);
     });
 
