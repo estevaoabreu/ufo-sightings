@@ -259,7 +259,8 @@ body {
 
 /* D3 Timeline Styles */
 #timeline-container .tick line {
-  stroke: rgba(255, 255, 255, 0.1);
+  stroke: rgba(150, 150, 150, 0.4);
+  stroke-width: 1;
 }
 
 #timeline-container .tick text {
