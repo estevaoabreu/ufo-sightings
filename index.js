@@ -442,39 +442,130 @@ mapButtons.forEach((btn, index) => {
   });
 });
 
+/**
+ * D3 Connected Scatterplot for Timeline Visualization
+ * Inspired by: https://observablehq.com/@d3/connected-scatterplot/2
+ */
 function drawTimelineChart(features) {
-  const ctx = document.getElementById("timeline-chart").getContext("2d");
-  const years = features
-    .map((f) => new Date(f.properties.datetime).getFullYear())
-    .filter((y) => !isNaN(y));
-  const counts = {};
-  years.forEach((y) => (counts[y] = (counts[y] || 0) + 1));
-  const sortedYears = Object.keys(counts).sort();
-  const values = sortedYears.map((y) => counts[y]);
-  if (timelineChart) timelineChart.destroy();
-  timelineChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: sortedYears,
-      datasets: [
-        {
-          label: "Sightings per year",
-          data: values,
-          borderWidth: 2,
-          tension: 0.2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: { ticks: { color: "white" } },
-        y: { ticks: { color: "white" } },
-      },
-      plugins: { legend: { labels: { color: "white" } } },
-    },
+  // Clear previous chart
+  timelineDiv.innerHTML = "";
+  
+  // Process data: count sightings per year
+  const yearCounts = {};
+  features.forEach((f) => {
+    const year = new Date(f.properties.datetime).getFullYear();
+    if (!isNaN(year)) {
+      yearCounts[year] = (yearCounts[year] || 0) + 1;
+    }
   });
+  
+  // Convert to array of objects
+  const data = Object.entries(yearCounts)
+    .map(([year, count]) => ({ year: parseInt(year), count: parseInt(count) }))
+    .sort((a, b) => a.year - b.year);
+  
+  if (data.length === 0) return;
+  
+  // Dimensions
+  const margin = { top: 30, right: 30, bottom: 50, left: 70 };
+  const containerRect = timelineDiv.getBoundingClientRect();
+  const width = containerRect.width - margin.left - margin.right;
+  const height = containerRect.height - margin.top - margin.bottom;
+  
+  // Scales
+  const xScale = d3.scaleLinear()
+    .domain(d3.extent(data, d => d.year))
+    .range([0, width]);
+  
+  const yScale = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.count)])
+    .range([height, 0]);
+  
+  // Create SVG
+  const svg = d3.select("#timeline-container")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+  
+  const g = svg.append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+  
+  // Create line generator
+  const line = d3.line()
+    .x(d => xScale(d.year))
+    .y(d => yScale(d.count));
+  
+  // Add grid lines
+  g.append("g")
+    .attr("class", "grid")
+    .attr("opacity", 0.1)
+    .call(d3.axisLeft(yScale)
+      .tickSize(-width)
+      .tickFormat("")
+    );
+  
+  // Add path line
+  g.append("path")
+    .datum(data)
+    .attr("class", "line")
+    .attr("d", line);
+  
+  // Add circles (data points)
+  g.selectAll(".dot")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("class", "dot")
+    .attr("cx", d => xScale(d.year))
+    .attr("cy", d => yScale(d.count))
+    .attr("r", 4)
+    .on("mouseover", function(event, d) {
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .attr("r", 6);
+      
+      // Show tooltip
+      g.append("text")
+        .attr("class", "tooltip")
+        .attr("x", xScale(d.year))
+        .attr("y", yScale(d.count) - 15)
+        .attr("text-anchor", "middle")
+        .attr("fill", "rgba(255, 255, 255, 0.9)")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold")
+        .text(`${d.year}: ${d.count} sightings`);
+    })
+    .on("mouseout", function() {
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .attr("r", 4);
+      
+      g.select(".tooltip").remove();
+    });
+  
+  // X axis
+  g.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
+    .append("text")
+    .attr("class", "axis-label")
+    .attr("x", width / 2)
+    .attr("y", 40)
+    .attr("text-anchor", "middle")
+    .text("Year");
+  
+  // Y axis
+  g.append("g")
+    .call(d3.axisLeft(yScale))
+    .append("text")
+    .attr("class", "axis-label")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -50)
+    .attr("text-anchor", "middle")
+    .text("Number of Sightings");
 }
 
 function drawShapesChart(features) {
