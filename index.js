@@ -1,5 +1,5 @@
 mapboxgl.accessToken =
-  "pk.eyJ1IjoiZXN0ZXZhb2FicmV1IiwiYSI6ImNsdjc2bzMyZDA2dnIyam50Z3NjYml2eHoifQ.iadMiy9yZwDOaIRXqUVgMg";
+  "pk.eyJ1IjoiZXN0ZXZhb2FicmV1IiwiYSI6ImNsdjc2bzMyZDA2dnIyam50Z3NjYml0eHoifQ.iadMiy9yZwDOaIRXqUVgMg";
 
 const clusterToggle = document.getElementById("cluster-toggle");
 let groupSightings = clusterToggle.checked;
@@ -446,8 +446,8 @@ mapButtons.forEach((btn, index) => {
  * D3 Connected Scatterplot for Timeline Visualization
  * Inspired by: https://observablehq.com/@d3/connected-scatterplot/2
  * Features:
- * - Line animation on load
- * - Point entrance animations
+ * - Fast line animation on load (700ms)
+ * - Quick staggered point entrance (400ms)
  * - Smooth transitions on interaction
  * - Responsive sizing
  */
@@ -509,23 +509,23 @@ function drawTimelineChart(features) {
       .tickFormat("")
     );
   
-  // Add path line with animation
+  // Add path line with animation (700ms instead of 1500ms)
   const path = g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("d", line);
   
-  // Animate line drawing (stroke-dasharray animation)
+  // Animate line drawing - FASTER
   const pathLength = path.node().getTotalLength();
   path
     .attr("stroke-dasharray", pathLength)
     .attr("stroke-dashoffset", pathLength)
     .transition()
-    .duration(1500)
+    .duration(700)
     .ease(d3.easeLinear)
     .attr("stroke-dashoffset", 0);
   
-  // Add circles (data points) with staggered entrance animation
+  // Add circles (data points) with staggered entrance animation (400ms total instead of 800ms)
   g.selectAll(".dot")
     .data(data)
     .enter()
@@ -538,7 +538,7 @@ function drawTimelineChart(features) {
     .on("mouseover", function(event, d) {
       d3.select(this)
         .transition()
-        .duration(300)
+        .duration(200)
         .attr("r", 7)
         .attr("filter", "drop-shadow(0 0 6px rgba(100, 200, 255, 0.8))");
       
@@ -561,15 +561,15 @@ function drawTimelineChart(features) {
     .on("mouseout", function() {
       d3.select(this)
         .transition()
-        .duration(300)
+        .duration(200)
         .attr("r", 4)
         .attr("filter", "");
       
       g.selectAll(".tooltip-text").remove();
     })
     .transition()
-    .delay((d, i) => i * 50)
-    .duration(800)
+    .delay((d, i) => i * 30)
+    .duration(400)
     .ease(d3.easeElasticOut)
     .attr("r", 4)
     .attr("opacity", 1);
