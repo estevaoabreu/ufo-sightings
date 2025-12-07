@@ -78,7 +78,7 @@ body {
 
 #details-panel {
   position: absolute;
-  top: calc(120px + 310px + 8px);
+  top: calc(120px + 310px);
   left: 90px;
   width: 280px;
   background: transparent;
