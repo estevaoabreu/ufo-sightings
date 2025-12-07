@@ -335,8 +335,8 @@ map.on("load", () => {
                     `<div class='ufo-box'>
             <h3>UFO Sighting</h3>
             <p><strong>Location:</strong> ${city || "Unknown"}${state ? ", " + state : ""
-                    }<br>${country || ""}</p>
-            <p><strong>Date/Time:</strong> ${datetime || "No date"}</p>
+                    }${country ? ", " + country : ""}</p>
+            <p><strong>Date/Time:</strong> ${datetime || "Unknown date"}</p>
             <p><strong>Shape:</strong> ${shape || "Unknown shape"}</p>
             <p><strong>Comments:</strong> ${comments || "No comments"}</p>
           </div>`
