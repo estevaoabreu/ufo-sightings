@@ -78,46 +78,69 @@ body {
 
 #details-panel {
   position: absolute;
-  top: 620px;
+  top: 580px;
   left: 90px;
   width: 280px;
-  max-height: 300px;
-  background: #000000;
-  padding: 15px;
-  border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(48, 48, 48, 0.2);
+  background: transparent;
+  padding: 0;
   z-index: 10;
-  font-family: sans-serif;
-  color: #ffffff;
-  border: 1px solid rgba(178, 178, 178, 0.2);
-  overflow-y: auto;
-}
-
-#details-panel h3 {
-  margin: 0 0 15px 0;
-  color: white;
-  font-size: 16px;
-  border-bottom: 1px solid rgba(178, 178, 178, 0.2);
-  padding-bottom: 10px;
 }
 
 #details-panel.hidden {
   display: none;
 }
 
-.sighting-info {
-  margin-bottom: 15px;
+#details {
+  width: 100%;
 }
 
-.sighting-info p {
-  margin: 6px 0;
-  font-size: 12px;
+.polaroid {
+  background: white;
+  padding: 12px;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transform: rotate(-2deg);
+  transition: transform 0.2s ease;
+}
+
+.polaroid:hover {
+  transform: rotate(-2deg) scale(1.02);
+}
+
+.polaroid-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+  margin: 0;
+}
+
+.polaroid-caption {
+  padding: 12px 4px 4px 4px;
+  background: white;
+  text-align: center;
+}
+
+.polaroid-name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.polaroid-comment {
+  margin: 0;
+  font-size: 11px;
+  color: #666;
   line-height: 1.4;
-  color: #fff;
-}
-
-.sighting-info strong {
-  color: #fff;
+  word-wrap: break-word;
+  text-align: center;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dual-range {
@@ -178,45 +201,6 @@ body {
   margin: 4px 0;
   font-size: 12px;
   line-height: 1.4;
-}
-
-.comment-section {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(178, 178, 178, 0.3);
-}
-
-.comment-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 8px;
-  flex-shrink: 0;
-  background: #f0f0f0;
-  border: 2px solid rgba(178, 178, 178, 0.3);
-}
-
-.comment-info {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.comment-author {
-  margin: 0;
-  font-weight: 600;
-  font-size: 12px;
-  color: #fff;
-}
-
-.comment-text {
-  margin: 0;
-  font-size: 11px;
-  color: #ccc;
-  line-height: 1.4;
-  word-wrap: break-word;
 }
 
 .mapboxgl-popup-content {
