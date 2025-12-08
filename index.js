@@ -208,6 +208,7 @@ function updateMapVisualization() {
   if (map.getLayer("clusters")) map.removeLayer("clusters");
   if (map.getLayer("unclustered-point")) map.removeLayer("unclustered-point");
   if (map.getSource("ufoSightings")) map.removeSource("ufoSightings");
+  updateStats(ufoFeatures);
 
   const sourceOptions = {
     type: "geojson",
@@ -283,6 +284,38 @@ function updateMapVisualization() {
   });
 }
 
+function updateStats(features) {
+  const totalSightings = features.length;
+  document.querySelector("#total-sightings .stat-value").textContent =
+    totalSightings;
+
+  const citiesSet = new Set(
+    features.map((f) => f.properties.city).filter((c) => c)
+  );
+  document.querySelector("#total-cities .stat-value").textContent =
+    citiesSet.size;
+
+  const shapeCounts = {};
+  features.forEach((f) => {
+    const shape = f.properties.shape || "Unknown";
+    shapeCounts[shape] = (shapeCounts[shape] || 0) + 1;
+  });
+  const commonShape = Object.keys(shapeCounts).length
+    ? Object.entries(shapeCounts).sort((a, b) => b[1] - a[1])[0][0]
+    : "N/A";
+  document.querySelector("#common-shape .stat-value").textContent =
+    commonShape;
+
+  const durations = features
+    .map((f) => parseFloat(f.properties.durationSeconds))
+    .filter((d) => !isNaN(d));
+  const avgDuration = durations.length
+    ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1)
+    : "N/A";
+  document.querySelector("#avg-duration .stat-value").textContent =
+    avgDuration + (avgDuration !== "N/A" ? " seconds" : "");
+}
+
 map.on("load", () => {
   d3.csv("data.csv").then((rows) => {
     allFeatures = rows.map((d) => ({
@@ -299,38 +332,6 @@ map.on("load", () => {
         durationFull: d.durationFull,
       },
     }));
-
-    function updateStats(features) {
-      const totalSightings = features.length;
-      document.querySelector("#total-sightings .stat-value").textContent =
-        totalSightings;
-
-      const citiesSet = new Set(
-        features.map((f) => f.properties.city).filter((c) => c)
-      );
-      document.querySelector("#total-cities .stat-value").textContent =
-        citiesSet.size;
-
-      const shapeCounts = {};
-      features.forEach((f) => {
-        const shape = f.properties.shape || "Unknown";
-        shapeCounts[shape] = (shapeCounts[shape] || 0) + 1;
-      });
-      const commonShape = Object.keys(shapeCounts).length
-        ? Object.entries(shapeCounts).sort((a, b) => b[1] - a[1])[0][0]
-        : "N/A";
-      document.querySelector("#common-shape .stat-value").textContent =
-        commonShape;
-
-      const durations = features
-        .map((f) => parseFloat(f.properties.durationSeconds))
-        .filter((d) => !isNaN(d));
-      const avgDuration = durations.length
-        ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1)
-        : "N/A";
-      document.querySelector("#avg-duration .stat-value").textContent =
-        avgDuration + (avgDuration !== "N/A" ? " seconds" : "");
-    }
 
     updateStats(allFeatures);
 
