@@ -13,11 +13,11 @@ body {
 }
 
 #map {
-  margin-top: 150px;
-  width: 70%;
-  height: 60%;
-  margin-left: 400px;
-  border-radius: 5px;
+  margin-top: 131px;
+  width: 75%;
+  height: 70%;
+  margin-left: 325px;
+  border-radius: 10px;
   border: 1px solid rgba(178, 178, 178, 0.2);
 }
 
@@ -27,41 +27,106 @@ body {
 }
 
 .page-header {
+  position: relative;
+  display: flex;
   text-align: center;
   padding: 20px 0;
 }
 
 .page-header h1 {
+  display: inline-block;
   font-size: 2rem;
   margin: 0;
   color: white;
   text-align: left;
-  margin-left: 100px;
+  margin-left: 30px;
 }
 
 .page-header h2 {
   font-size: 1.1rem;
   font-weight: 300;
-  margin-top: 5px;
+  margin-top: 10px;
   color: #ffffff;
   opacity: 50%;
   text-align: left;
-  margin-left: 100px;
+  margin-left: 30px;
+}
+
+.page-header .about-us {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  padding: 8px 16px;
+  background-color: rgba(100, 200, 255, 1);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.page-header .about-us:hover {
+  background-color: rgb(0, 117, 181);
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.95);
+  color: #fff;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  z-index: 10000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.overlay-content h1 {
+  font-size: 36px;
+  margin-bottom: 100px;
+}
+
+.overlay-content p {
+  font-size: 20px;
+  margin: 5px 0;
+  margin-bottom: 100px;
+}
+
+#close-overlay {
+  margin-top: 30px;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+#close-overlay:hover {
+  background-color: #ddd;
 }
 
 #filter-panel {
   position: absolute;
-  top: 120px;
-  left: 90px;
+  top: 80px;
+  left: 30px;
   width: 250px;
   background: #000000;
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 10px;
   box-shadow: 0 4px 12px rgba(48, 48, 48, 0.2);
   z-index: 10;
   font-family: sans-serif;
   color: #ffffff;
-  border: 1px solid rgba(178, 178, 178, 0.2);
+  border: 1px solid rgba(178, 178, 178, 0.6);
 }
 
 #filter-panel h3 {
@@ -99,10 +164,11 @@ body {
   flex-direction: column;
   gap: 0;
   background: rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(178, 178, 178, 0.2);
-  border-radius: 12px;
+  border: 1px solid rgba(178, 178, 178, 0.6);
+  border-radius: 10px;
   overflow: hidden;
   width: 100%;
+  margin-left: -62px;
 }
 
 .comment-card::before {
@@ -154,7 +220,7 @@ body {
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(178, 178, 178, 0.2);
   padding: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   width: 280px;
   font-family: sans-serif;
   overflow: hidden;
@@ -262,9 +328,9 @@ body {
 
 #map-buttons {
   position: absolute;
-  top: 210px;
-  left: 400px;
-  width: 70%;
+  top: 165px;
+  left: 325px;
+  width: 75%;
   height: 40px;
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(178, 178, 178, 0.1);
@@ -297,15 +363,29 @@ body {
   font-weight: bold;
 }
 
+.divider {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: bold;
+  user-select: none;
+}
+
 #map-stats {
   position: absolute;
   top: 120px;
-  left: 395px;
+  left: 320px;
   height: 75px;
-  width: 71%;
+  width: 76%;
   display: flex;
   justify-content: space-between;
   z-index: 15;
+}
+
+#map-stats {
+  position: absolute;
+  top: calc(60px + 10px + 10px); /* topo do filtro + altura do filtro + gap */
+  left: 320px; /* mesmo alinhamento do filtro */
+  display: flex;
+  gap: 10px;
 }
 
 .stat-box {
@@ -313,10 +393,10 @@ body {
   margin: 0 5px;
   background: rgba(0, 0, 0, 0.5);
   color: white;
-  font-size: 14px;
+  font-size: 16px;
   padding: 10px;
-  border-radius: 5px;
-  border: 1px solid rgba(178, 178, 178, 0.2);
+  border-radius: 10px;
+  border: 1px solid rgba(178, 178, 178, 0.6);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -348,13 +428,13 @@ body {
 
 #timeline-container {
   position: absolute;
-  top: 270px;
-  left: 400px;
-  width: 69%;
-  height: 60%;
+  margin-top: 131px;
+  margin-left: 325px;
+  width: 75%;
+  height: 70%;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(178, 178, 178, 0.5);
-  border-radius: 5px;
+  border-radius: 10px;
   padding: 0;
   z-index: 20;
   display: none;
@@ -417,13 +497,13 @@ body {
 
 #shapes-container {
   position: absolute;
-  top: 270px;
-  left: 400px;
-  width: 69%;
-  height: 60%;
+  margin-top: 131px;
+  margin-left: 325px;
+  width: 74%;
+  height: 68%;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(178, 178, 178, 0.5);
-  border-radius: 5px;
+  border-radius: 10px;
   padding: 10px;
   z-index: 20;
   display: none;
@@ -437,13 +517,13 @@ body {
 
 #monthly-container {
   position: absolute;
-  top: 270px;
-  left: 400px;
-  width: 69%;
-  height: 60%;
+  margin-top: 131px;
+  margin-left: 325px;
+  width: 74%;
+  height: 68%;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(178, 178, 178, 0.5);
-  border-radius: 5px;
+  border-radius: 10px;
   padding: 10px;
   z-index: 20;
   display: none;
