@@ -27,18 +27,64 @@ let countryStateToShapesMap = {};
 let activePopup = null;
 let popupClickListener = false;
 
-const firstNames = ["Alex", "Jordan", "Morgan", "Casey", "Riley", "Taylor", "Dakota", "Quinn", "Avery", "Cameron", "Blake", "Skylar", "River", "Sam", "Jamie", "Whitney", "Reese", "Phoenix", "Sage", "Storm"];
-const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"];
+const firstNames = [
+  "Alex",
+  "Jordan",
+  "Morgan",
+  "Casey",
+  "Riley",
+  "Taylor",
+  "Dakota",
+  "Quinn",
+  "Avery",
+  "Cameron",
+  "Blake",
+  "Skylar",
+  "River",
+  "Sam",
+  "Jamie",
+  "Whitney",
+  "Reese",
+  "Phoenix",
+  "Sage",
+  "Storm",
+];
+const lastNames = [
+  "Smith",
+  "Johnson",
+  "Williams",
+  "Brown",
+  "Jones",
+  "Garcia",
+  "Miller",
+  "Davis",
+  "Rodriguez",
+  "Martinez",
+  "Hernandez",
+  "Lopez",
+  "Gonzalez",
+  "Wilson",
+  "Anderson",
+  "Thomas",
+  "Taylor",
+  "Moore",
+  "Jackson",
+  "Martin",
+];
 
 function generateRandomName(seed) {
-  const hash = seed.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
+  const hash = seed
+    .split("")
+    .reduce((a, b) => (a << 5) - a + b.charCodeAt(0), 0);
   const firstIdx = Math.abs(hash % firstNames.length);
-  const lastIdx = Math.abs((hash / firstNames.length | 0) % lastNames.length);
+  const lastIdx = Math.abs(((hash / firstNames.length) | 0) % lastNames.length);
   return `${firstNames[firstIdx]} ${lastNames[lastIdx]}`;
 }
 
 function getRandomAvatarUrl(seed) {
-  return `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(seed)}`;
+  return `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(
+    seed
+  )}`;
 }
 
 function closeDetailsPanel() {
@@ -67,7 +113,7 @@ function populateFilters(rows) {
 
     if (d.shape) {
       shapes.add(d.shape);
-      const key = `${d.country || ''}-${d.state || ''}`;
+      const key = `${d.country || ""}-${d.state || ""}`;
       if (!countryStateToShapesMap[key]) {
         countryStateToShapesMap[key] = new Set();
       }
@@ -97,7 +143,7 @@ function updateShapeFilterOptions() {
 
   shapeSelect.innerHTML = '<option value="">All shapes</option>';
 
-  const key = `${country || ''}-${state || ''}`;
+  const key = `${country || ""}-${state || ""}`;
 
   let shapesToShow = [];
 
@@ -107,14 +153,14 @@ function updateShapeFilterOptions() {
     const countryShapes = new Set();
     for (const [map_key, shapeSet] of Object.entries(countryStateToShapesMap)) {
       if (map_key.startsWith(country)) {
-        shapeSet.forEach(shape => countryShapes.add(shape));
+        shapeSet.forEach((shape) => countryShapes.add(shape));
       }
     }
     shapesToShow = [...countryShapes].sort();
   } else {
     const allShapes = new Set();
     for (const shapeSet of Object.values(countryStateToShapesMap)) {
-      shapeSet.forEach(shape => allShapes.add(shape));
+      shapeSet.forEach((shape) => allShapes.add(shape));
     }
     shapesToShow = [...allShapes].sort();
   }
@@ -236,13 +282,13 @@ function updateMapVisualization() {
         "circle-color": [
           "step",
           ["get", "point_count"],
-          "rgba(33, 11, 60, 0.25)",
+          "rgba(100, 200, 255, 0.25)",
           250,
-          "rgba(33, 11, 60, 0.5)",
+          "rgba(100, 200, 255, 0.5)",
           500,
-          "rgba(33, 11, 60, 0.75)",
+          "rgba(100, 200, 255, 0.75)",
           750,
-          "rgba(33, 11, 60, 1)",
+          "rgba(100, 200, 255, 1)",
         ],
         "circle-radius": [
           "step",
@@ -255,6 +301,9 @@ function updateMapVisualization() {
           5000,
           45,
         ],
+
+        "circle-stroke-color": "white",
+        "circle-stroke-width": 1,
       },
     });
 
@@ -278,7 +327,7 @@ function updateMapVisualization() {
     source: "ufoSightings",
     filter: groupSightings ? ["!", ["has", "point_count"]] : ["all"],
     paint: {
-      "circle-color": "rgba(33, 11, 60, 1)",
+      "circle-color": "rgba(100, 200, 255, 1)",
       "circle-radius": 4,
     },
   });
@@ -303,8 +352,7 @@ function updateStats(features) {
   const commonShape = Object.keys(shapeCounts).length
     ? Object.entries(shapeCounts).sort((a, b) => b[1] - a[1])[0][0]
     : "N/A";
-  document.querySelector("#common-shape .stat-value").textContent =
-    commonShape;
+  document.querySelector("#common-shape .stat-value").textContent = commonShape;
 
   const durations = features
     .map((f) => parseFloat(f.properties.durationSeconds))
@@ -346,87 +394,92 @@ map.on("load", () => {
 
     map.on("mouseenter", "unclustered-point", (e) => {
       map.getCanvas().style.cursor = "pointer";
+
       const f = e.features[0];
-      let { city, state, country, datetime, shape, durationFull } = f.properties;
+      const { comments, city, state, country, datetime, shape, durationFull } =
+        f.properties;
 
-      city = city.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-
+      // Pop-up Mapbox
       const dateObj = new Date(datetime);
-      const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('en-US') : 'Unknown';
-      const formattedTime = !isNaN(dateObj) ? dateObj.toLocaleTimeString('en-US') : 'N/A';
+      const formattedDate = !isNaN(dateObj)
+        ? dateObj.toLocaleDateString("en-US")
+        : "Unknown";
+      const formattedTime = !isNaN(dateObj)
+        ? dateObj.toLocaleTimeString("en-US")
+        : "N/A";
 
-      popup
+      if (activePopup) activePopup.remove();
+
+      activePopup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+      })
         .setLngLat(f.geometry.coordinates)
         .setHTML(
-          `<div class='ufo-box'>
+          `
+        <div class='ufo-box'>
             <h3>UFO Sighting Details</h3>
             <div class='sighting-info'>
-              <div class='sighting-item'>
-                <div class='sighting-item-icon'>📍</div>
-                <div>
-                  <div class='sighting-item-label'>Location</div>
-                  <div class='sighting-item-value'>${city || 'Unknown'}${state ? ', ' + state : ''}${country ? ', ' + country : ''}</div>
+                <div class='sighting-item'>
+                    <div class='sighting-item-icon'>📍</div>
+                    <div>
+                        <div class='sighting-item-label'>Location</div>
+                        <div class='sighting-item-value'>${city || "Unknown"}${
+            state ? ", " + state : ""
+          }${country ? ", " + country : ""}</div>
+                    </div>
                 </div>
-              </div>
-              <div class='sighting-item'>
-                <div class='sighting-item-icon'>📅</div>
-                <div>
-                  <div class='sighting-item-label'>Date</div>
-                  <div class='sighting-item-value'>${formattedDate}</div>
+                <div class='sighting-item'>
+                    <div class='sighting-item-icon'>📅</div>
+                    <div>
+                        <div class='sighting-item-label'>Date</div>
+                        <div class='sighting-item-value'>${formattedDate}</div>
+                    </div>
                 </div>
-              </div>
-              <div class='sighting-item'>
-                <div class='sighting-item-icon'>🕐</div>
-                <div>
-                  <div class='sighting-item-label'>Time</div>
-                  <div class='sighting-item-value'>${formattedTime}</div>
+                <div class='sighting-item'>
+                    <div class='sighting-item-icon'>🕐</div>
+                    <div>
+                        <div class='sighting-item-label'>Time</div>
+                        <div class='sighting-item-value'>${formattedTime}</div>
+                    </div>
                 </div>
-              </div>
-              <div class='sighting-item'>
-                <div class='sighting-item-icon'>🛸</div>
-                <div>
-                  <div class='sighting-item-label'>Shape</div>
-                  <div class='sighting-item-value'>${shape || 'Unknown'}</div>
+                <div class='sighting-item'>
+                    <div class='sighting-item-icon'>🛸</div>
+                    <div>
+                        <div class='sighting-item-label'>Shape</div>
+                        <div class='sighting-item-value'>${
+                          shape || "Unknown"
+                        }</div>
+                    </div>
                 </div>
-              </div>
-              <div class='sighting-item'>
-                <div class='sighting-item-icon'>⏱️</div>
-                <div>
-                  <div class='sighting-item-label'>Duration</div>
-                  <div class='sighting-item-value'>${durationFull ? durationFull : 'Unknown'}</div>
+                <div class='sighting-item'>
+                    <div class='sighting-item-icon'>⏱️</div>
+                    <div>
+                        <div class='sighting-item-label'>Duration</div>
+                        <div class='sighting-item-value'>${
+                          durationFull || "Unknown"
+                        }</div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>`
+        </div>
+    `
         )
         .addTo(map);
 
-      activePopup = popup;
-    });
-
-    map.on("mouseleave", "unclustered-point", () => {
-      map.getCanvas().style.cursor = "";
-    });
-
-    map.on("click", "unclustered-point", (e) => {
-      e.originalEvent.stopPropagation();
-      popupClickListener = true;
-
-      const f = e.features[0];
-      const { comments } = f.properties;
-
+      // Detalhes de comentários
       if (comments) {
         const commenterName = generateRandomName(comments);
         const avatarUrl = getRandomAvatarUrl(comments);
 
         detailsContent.innerHTML = `
-          <div class='comment-card'>
-            <img src='${avatarUrl}' alt='${commenterName}' class='comment-image' />
-            <div class='comment-details'>
-              <p class='comment-name'>${commenterName}</p>
-              <p class='comment-text'>${comments}</p>
+            <div class='comment-card'>
+                <img src='${avatarUrl}' alt='${commenterName}' class='comment-image' />
+                <div class='comment-details'>
+                    <p class='comment-name'>${commenterName}</p>
+                    <p class='comment-text'>${comments}</p>
+                </div>
             </div>
-          </div>
         `;
         detailsPanel.classList.remove("hidden");
       } else {
@@ -434,7 +487,16 @@ map.on("load", () => {
       }
     });
 
-    map.on("click", (e) => {
+    map.on("mouseleave", "unclustered-point", () => {
+      map.getCanvas().style.cursor = "";
+      if (activePopup) {
+        activePopup.remove();
+        activePopup = null;
+      }
+      closeDetailsPanel();
+    });
+
+    map.on("mouseleave", "unclustered-point", () => {
       if (popupClickListener) {
         popupClickListener = false;
         return;
@@ -581,7 +643,8 @@ function drawTimelineChart(features) {
     .sort((a, b) => a.year - b.year);
 
   if (data.length === 0) {
-    timelineDiv.innerHTML = "<p class='no-data-msg'>No data for the selected period.</p>";
+    timelineDiv.innerHTML =
+      "<p class='no-data-msg'>No data for the selected period.</p>";
     return;
   }
 
@@ -590,37 +653,40 @@ function drawTimelineChart(features) {
   const width = containerRect.width - margin.left - margin.right;
   const height = containerRect.height - margin.top - margin.bottom;
 
-  const xScale = d3.scaleLinear()
-    .domain(d3.extent(data, d => d.year))
+  const xScale = d3
+    .scaleLinear()
+    .domain(d3.extent(data, (d) => d.year))
     .range([0, width]);
 
-  const yScale = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.count) || 1])
+  const yScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(data, (d) => d.count) || 1])
     .range([height, 0]);
 
-  const svg = d3.select("#timeline-container")
+  const svg = d3
+    .select("#timeline-container")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
 
-  const g = svg.append("g")
+  const g = svg
+    .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  const line = d3.line()
-    .x(d => xScale(d.year))
-    .y(d => yScale(d.count));
+  const line = d3
+    .line()
+    .x((d) => xScale(d.year))
+    .y((d) => yScale(d.count));
 
   g.append("g")
     .attr("class", "grid")
-    .call(d3.axisLeft(yScale)
-      .tickSize(-width)
-      .tickFormat("")
-    )
+    .call(d3.axisLeft(yScale).tickSize(-width).tickFormat(""))
     .selectAll("line")
     .attr("stroke", "rgba(150, 150, 150, 0.4)")
     .attr("stroke-width", 1);
 
-  const path = g.append("path")
+  const path = g
+    .append("path")
     .datum(data)
     .attr("class", "line")
     .attr("d", line)
@@ -641,8 +707,8 @@ function drawTimelineChart(features) {
     .enter()
     .append("circle")
     .attr("class", "dot")
-    .attr("cx", d => xScale(d.year))
-    .attr("cy", d => yScale(d.count))
+    .attr("cx", (d) => xScale(d.year))
+    .attr("cy", (d) => yScale(d.count))
     .attr("fill", "lightblue")
     .attr("r", 0)
     .attr("opacity", 0)
@@ -714,8 +780,9 @@ function drawShapesChart(features) {
     counts[shape] = (counts[shape] || 0) + 1;
   });
 
-  const labels = Object.keys(counts);
-  const data = labels.map((l) => counts[l]);
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const labels = sorted.map((entry) => entry[0]);
+  const data = sorted.map((entry) => entry[1]);
 
   const backgroundColors = labels.map(
     (_, i) => `hsl(${(i * 360) / labels.length}, 70%, 50%)`
@@ -787,7 +854,7 @@ function drawMonthlyChart(features) {
         {
           label: "Sightings per month",
           data: monthsCount,
-          backgroundColor: "rgba(54, 162, 235, 0.8)",
+          backgroundColor: "rgba(100, 200, 255, 1)",
         },
       ],
     },
@@ -835,7 +902,9 @@ function zoomToState(state) {
   if (!state) {
     const country = document.getElementById("country-filter").value;
     if (country) {
-      const features = allFeatures.filter((f) => f.properties?.country === country);
+      const features = allFeatures.filter(
+        (f) => f.properties?.country === country
+      );
       zoomToArea(features, 6);
     }
     return;
@@ -844,3 +913,17 @@ function zoomToState(state) {
   const features = allFeatures.filter((f) => f.properties?.state === state);
   zoomToArea(features, 8);
 }
+
+const aboutBtn = document.querySelector(".about-us");
+const overlay = document.getElementById("overlay");
+const closeBtn = document.getElementById("close-overlay");
+
+// Abrir overlay
+aboutBtn.addEventListener("click", () => {
+  overlay.style.display = "flex";
+});
+
+// Fechar overlay
+closeBtn.addEventListener("click", () => {
+  overlay.style.display = "none";
+});
