@@ -424,8 +424,7 @@ map.on("load", () => {
                     <div class='sighting-item-icon'>📍</div>
                     <div>
                         <div class='sighting-item-label'>Location</div>
-                        <div class='sighting-item-value'>${city || "Unknown"}${
-            state ? ", " + state : ""
+                        <div class='sighting-item-value'>${city || "Unknown"}${state ? ", " + state : ""
           }${country ? ", " + country : ""}</div>
                     </div>
                 </div>
@@ -447,18 +446,16 @@ map.on("load", () => {
                     <div class='sighting-item-icon'>🛸</div>
                     <div>
                         <div class='sighting-item-label'>Shape</div>
-                        <div class='sighting-item-value'>${
-                          shape || "Unknown"
-                        }</div>
+                        <div class='sighting-item-value'>${shape || "Unknown"
+          }</div>
                     </div>
                 </div>
                 <div class='sighting-item'>
                     <div class='sighting-item-icon'>⏱️</div>
                     <div>
                         <div class='sighting-item-label'>Duration</div>
-                        <div class='sighting-item-value'>${
-                          durationFull || "Unknown"
-                        }</div>
+                        <div class='sighting-item-value'>${durationFull || "Unknown"
+          }</div>
                     </div>
                 </div>
             </div>
@@ -556,12 +553,23 @@ let valueMin = minYear;
 let valueMax = maxYear;
 const rangeWidth = 250;
 
+const bubbleMin = document.getElementById("bubble-min");
+const bubbleMax = document.getElementById("bubble-max");
+
 function updateThumbs() {
   const leftMin = ((valueMin - minYear) / (maxYear - minYear)) * rangeWidth;
   const leftMax = ((valueMax - minYear) / (maxYear - minYear)) * rangeWidth;
-  thumbMin.style.left = leftMin + "10px";
+
+  thumbMin.style.left = leftMin + "px";
   thumbMax.style.left = leftMax + "px";
-  yearDisplay.textContent = `${valueMin} - ${valueMax}`;
+
+  // Update bubble positions
+  bubbleMin.style.left = leftMin + "px";
+  bubbleMax.style.left = leftMax + "px";
+
+  // Update bubble text
+  bubbleMin.textContent = valueMin;
+  bubbleMax.textContent = valueMax;
 
   ufoFeatures = applyFilters();
   updateMapVisualization();
