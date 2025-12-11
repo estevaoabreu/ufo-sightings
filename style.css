@@ -42,7 +42,7 @@ body {
   display: inline-block;
   font-size: 2rem;
   margin: 0;
-  color: var(--white);
+  color: var(--blue);
   text-align: left;
   margin-left: 30px;
 }
@@ -52,7 +52,6 @@ body {
   font-weight: 300;
   margin-top: 10px;
   color: var(--white);
-  opacity: 50%;
   text-align: left;
   margin-left: 30px;
 }
@@ -447,7 +446,6 @@ body {
 
 .stat-box .stat-title {
   font-weight: bold;
-  opacity: 0.5;
   font-size: 16px;
   margin-bottom: 5px;
 }
