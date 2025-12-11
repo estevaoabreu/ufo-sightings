@@ -302,7 +302,7 @@ function updateMapVisualization() {
           45,
         ],
 
-        "circle-stroke-color": "white",
+        "circle-stroke-color": "#e8e7e7",
         "circle-stroke-width": 1,
       },
     });
@@ -327,7 +327,7 @@ function updateMapVisualization() {
     source: "ufoSightings",
     filter: groupSightings ? ["!", ["has", "point_count"]] : ["all"],
     paint: {
-      "circle-color": "rgba(100, 200, 255, 1)",
+      "circle-color": "#64C8FF",
       "circle-radius": 4,
     },
   });
@@ -690,7 +690,7 @@ function drawTimelineChart(features) {
     .attr("class", "grid")
     .call(d3.axisLeft(yScale).tickSize(-width).tickFormat(""))
     .selectAll("line")
-    .attr("stroke", "rgba(150, 150, 150, 0.4)")
+    .attr("stroke", "#e8e7e7")
     .attr("stroke-width", 1);
 
   const path = g
@@ -725,18 +725,17 @@ function drawTimelineChart(features) {
         .transition()
         .duration(300)
         .attr("r", 7)
-        .attr("filter", "drop-shadow(0 0 6px rgba(100, 200, 255, 0.8))");
 
       g.append("text")
         .attr("class", "tooltip-text")
         .attr("x", xScale(d.year))
         .attr("y", yScale(d.count) - 20)
         .attr("text-anchor", "middle")
-        .attr("fill", "rgba(255, 255, 255, 0.9)")
+        .attr("fill", "#e8e7e7")
         .attr("font-size", "13px")
         .attr("font-weight", "bold")
         .attr("pointer-events", "none")
-        .style("text-shadow", "0 0 4px rgba(0, 0, 0, 0.8)")
+        .style("text-shadow", "0 0 4px #0e0e0e")
         .text(`${d.year}: ${d.count} sightings`)
         .transition()
         .duration(200)
@@ -792,10 +791,6 @@ function drawShapesChart(features) {
   const labels = sorted.map((entry) => entry[0]);
   const data = sorted.map((entry) => entry[1]);
 
-  const backgroundColors = labels.map(
-    (_, i) => `hsl(${(i * 360) / labels.length}, 70%, 50%)`
-  );
-
   if (shapesChart) shapesChart.destroy();
 
   shapesChart = new Chart(ctx, {
@@ -806,7 +801,7 @@ function drawShapesChart(features) {
         {
           label: "Count per shape",
           data: data,
-          backgroundColor: backgroundColors,
+          backgroundColor: "#64C8FF",
         },
       ],
     },
@@ -814,11 +809,11 @@ function drawShapesChart(features) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x: { ticks: { color: "white" } },
-        y: { ticks: { color: "white" } },
+        x: { ticks: { color: "#e8e7e7" } },
+        y: { ticks: { color: "#e8e7e7" } },
       },
       plugins: {
-        legend: { labels: { color: "white" } },
+        legend: { labels: { color: "#e8e7e7" } },
         tooltip: {
           enabled: true,
           callbacks: {
@@ -862,7 +857,7 @@ function drawMonthlyChart(features) {
         {
           label: "Sightings per month",
           data: monthsCount,
-          backgroundColor: "rgba(100, 200, 255, 1)",
+          backgroundColor: "#64C8FF",
         },
       ],
     },
@@ -870,10 +865,10 @@ function drawMonthlyChart(features) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x: { ticks: { color: "white" } },
-        y: { ticks: { color: "white" } },
+        x: { ticks: { color: "#e8e7e7" } },
+        y: { ticks: { color: "#e8e7e7" } },
       },
-      plugins: { legend: { labels: { color: "white" } } },
+      plugins: { legend: { labels: { color: "#e8e7e7" } } },
     },
   });
 }
