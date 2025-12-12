@@ -81,105 +81,57 @@ function generateRandomName(seed) {
   return `${firstNames[firstIdx]} ${lastNames[lastIdx]}`;
 }
 
-// New function to get UFO shape icon as SVG
-function getUfoShapeIcon(shape) {
+// Function to get UFO shape as EMOJI (120px size)
+function getUfoShapeEmoji(shape) {
   const normalizedShape = (shape || "unknown").toLowerCase().trim();
   
-  const shapeIcons = {
-    circle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <circle cx="50" cy="50" r="40" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    disk: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <ellipse cx="50" cy="50" rx="45" ry="15" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    triangle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <polygon points="50,15 90,85 10,85" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    light: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <circle cx="50" cy="50" r="25" fill="#FFE066" stroke="#FFD700" stroke-width="3"/>
-      <circle cx="50" cy="50" r="35" fill="none" stroke="#FFE066" stroke-width="2" opacity="0.5"/>
-      <circle cx="50" cy="50" r="42" fill="none" stroke="#FFE066" stroke-width="1" opacity="0.3"/>
-    </svg>`,
-    
-    sphere: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <defs>
-        <radialGradient id="sphereGrad">
-          <stop offset="0%" stop-color="#8ED8FF"/>
-          <stop offset="100%" stop-color="#64C8FF"/>
-        </radialGradient>
-      </defs>
-      <circle cx="50" cy="50" r="40" fill="url(#sphereGrad)" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    fireball: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <circle cx="50" cy="50" r="30" fill="#FF6B35" stroke="#FF4500" stroke-width="3"/>
-      <circle cx="50" cy="50" r="20" fill="#FFD700" opacity="0.8"/>
-    </svg>`,
-    
-    oval: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <ellipse cx="50" cy="50" rx="45" ry="30" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    cylinder: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <rect x="25" y="20" width="50" height="60" rx="5" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    diamond: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <polygon points="50,10 85,50 50,90 15,50" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    rectangle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <rect x="20" y="35" width="60" height="30" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    chevron: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <polygon points="50,20 90,50 75,50 50,35 25,50 10,50" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    egg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <ellipse cx="50" cy="55" rx="30" ry="40" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    cigar: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <ellipse cx="50" cy="50" rx="45" ry="12" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    cone: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <polygon points="50,15 80,85 20,85" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    cross: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <rect x="42" y="15" width="16" height="70" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-      <rect x="15" y="42" width="70" height="16" fill="#64C8FF" stroke="#4AA8D8" stroke-width="3"/>
-    </svg>`,
-    
-    flash: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <polygon points="55,10 40,50 60,50 45,90 70,45 50,45" fill="#FFD700" stroke="#FFA500" stroke-width="3"/>
-    </svg>`,
-    
-    formation: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <circle cx="30" cy="40" r="12" fill="#64C8FF" stroke="#4AA8D8" stroke-width="2"/>
-      <circle cx="50" cy="25" r="12" fill="#64C8FF" stroke="#4AA8D8" stroke-width="2"/>
-      <circle cx="70" cy="40" r="12" fill="#64C8FF" stroke="#4AA8D8" stroke-width="2"/>
-      <circle cx="40" cy="60" r="12" fill="#64C8FF" stroke="#4AA8D8" stroke-width="2"/>
-      <circle cx="60" cy="60" r="12" fill="#64C8FF" stroke="#4AA8D8" stroke-width="2"/>
-    </svg>`,
-    
-    changing: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <circle cx="50" cy="50" r="35" fill="none" stroke="#64C8FF" stroke-width="3" stroke-dasharray="10 5"/>
-      <circle cx="50" cy="50" r="25" fill="none" stroke="#8ED8FF" stroke-width="2" stroke-dasharray="5 3"/>
-    </svg>`,
-    
-    unknown: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-      <text x="50" y="65" font-size="60" text-anchor="middle" fill="#64C8FF">?</text>
-    </svg>`,
+  // EMOJI MAPPING:
+  // circle → ⭕ (Red circle)
+  // disk → 🛸 (Flying saucer)
+  // triangle → 🔺 (Red triangle pointed up)
+  // light → 💡 (Light bulb)
+  // sphere → 🔮 (Crystal ball)
+  // fireball → 🔥 (Fire)
+  // oval → 🥚 (Egg)
+  // cylinder → 🎫 (Ticket)
+  // diamond → 💎 (Gem stone)
+  // rectangle → ▬ (Black rectangle)
+  // chevron → ⏶ (Black medium up-pointing triangle)
+  // egg → 🥚 (Egg)
+  // cigar → 🚬 (Cigarette)
+  // cone → 🍦 (Ice cream cone)
+  // cross → ✖️ (Heavy multiplication X)
+  // flash → ⚡ (High voltage sign)
+  // formation → ✨ (Sparkles)
+  // changing → 🔄 (Counterclockwise arrows button)
+  // unknown → ❓ (Question mark)
+  
+  const shapeEmojis = {
+    circle: "⭕",           // Red circle
+    disk: "🛸",             // Flying saucer
+    triangle: "🔺",       // Red triangle pointed up
+    light: "💡",          // Light bulb
+    sphere: "🔮",         // Crystal ball
+    fireball: "🔥",       // Fire
+    oval: "🥚",           // Egg
+    cylinder: "🎫",       // Ticket
+    diamond: "💎",        // Gem stone
+    rectangle: "▬",      // Black rectangle
+    chevron: "⏶",        // Black medium up-pointing triangle
+    egg: "🥚",            // Egg
+    cigar: "🚬",         // Cigarette
+    cone: "🍦",          // Ice cream cone
+    cross: "✖️",         // Heavy multiplication X
+    flash: "⚡",          // High voltage sign
+    formation: "✨",     // Sparkles
+    changing: "🔄",      // Counterclockwise arrows button
+    unknown: "❓",        // Question mark
   };
   
-  // Return the icon for the shape, or unknown if not found
-  return shapeIcons[normalizedShape] || shapeIcons.unknown;
+  const emoji = shapeEmojis[normalizedShape] || shapeEmojis.unknown;
+  
+  // Return emoji wrapped in a styled div for large display
+  return `<div style="font-size: 120px; text-align: center; line-height: 1;">${emoji}</div>`;
 }
 
 function closeDetailsPanel() {
@@ -494,7 +446,6 @@ map.on("load", () => {
       const { comments, city, state, country, datetime, shape, durationFull } =
         f.properties;
 
-      // Pop-up Mapbox
       const dateObj = new Date(datetime);
       const formattedDate = !isNaN(dateObj)
         ? dateObj.toLocaleDateString("en-US")
@@ -559,14 +510,14 @@ map.on("load", () => {
         )
         .addTo(map);
 
-      // Details panel with UFO shape icon instead of random avatar
+      // Details panel with EMOJI instead of random avatar
       if (comments) {
         const commenterName = generateRandomName(comments);
-        const shapeIcon = getUfoShapeIcon(shape);
+        const shapeEmoji = getUfoShapeEmoji(shape);
 
         detailsContent.innerHTML = `
             <div class='comment-card'>
-                <div class='comment-image-container'>${shapeIcon}</div>
+                <div class='comment-image-container'>${shapeEmoji}</div>
                 <div class='comment-details'>
                     <p class='comment-name'>${commenterName}</p>
                     <p class='comment-text'>${comments}</p>
@@ -658,11 +609,9 @@ function updateThumbs() {
   thumbMin.style.left = leftMin + "px";
   thumbMax.style.left = leftMax + "px";
 
-  // Update bubble positions
   bubbleMin.style.left = leftMin + "px";
   bubbleMax.style.left = leftMax + "px";
 
-  // Update bubble text
   bubbleMin.textContent = valueMin;
   bubbleMax.textContent = valueMax;
 
@@ -1016,12 +965,10 @@ const aboutBtn = document.querySelector(".about-us");
 const overlay = document.getElementById("overlay");
 const closeBtn = document.getElementById("close-overlay");
 
-// Abrir overlay
 aboutBtn.addEventListener("click", () => {
   overlay.style.display = "flex";
 });
 
-// Fechar overlay
 closeBtn.addEventListener("click", () => {
   overlay.style.display = "none";
 });
