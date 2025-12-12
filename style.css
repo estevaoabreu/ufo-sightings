@@ -191,6 +191,21 @@ body {
   background: transparent;
 }
 
+/* New styles for UFO shape icon container */
+.comment-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: transparent;
+  min-height: 100px;
+}
+
+.comment-image-container svg {
+  display: block;
+  margin: 0 auto;
+}
+
 .comment-image {
   height: 130px;
   width: auto;
