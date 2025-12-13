@@ -396,8 +396,10 @@ map.on("load", () => {
       map.getCanvas().style.cursor = "pointer";
 
       const f = e.features[0];
-      const { comments, city, state, country, datetime, shape, durationFull } =
+      let { comments, city, state, country, datetime, shape, durationFull } =
         f.properties;
+
+      city = city.replace(/\b\w/g, char => char.toUpperCase());
 
       // Pop-up Mapbox
       const dateObj = new Date(datetime);
