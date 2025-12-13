@@ -1,3 +1,6 @@
+// This is an alternative version using EMOJIS instead of SVG shapes
+// To test: temporarily rename this file to index.js
+
 mapboxgl.accessToken =
   "pk.eyJ1IjoiZXN0ZXZhb2FicmV1IiwiYSI6ImNsdjc2bzMyZDA2dnIyam50Z3NjYml2eHoifQ.iadMiy9yZwDOaIRXqUVgMg";
 
@@ -81,58 +84,40 @@ function generateRandomName(seed) {
   return `${firstNames[firstIdx]} ${lastNames[lastIdx]}`;
 }
 
-// Function to get UFO shape as EMOJI (120px size)
+// EMOJI VERSION - Function to get UFO shape as EMOJI
 function getUfoShapeEmoji(shape) {
   const normalizedShape = (shape || "unknown").toLowerCase().trim();
   
-  // EMOJI MAPPING:
-  // circle → ⭕ (Red circle)
-  // disk → 🛸 (Flying saucer)
-  // triangle → 🔺 (Red triangle pointed up)
-  // light → 💡 (Light bulb)
-  // sphere → 🔮 (Crystal ball)
-  // fireball → 🔥 (Fire)
-  // oval → 🥚 (Egg)
-  // cylinder → 🎫 (Ticket)
-  // diamond → 💎 (Gem stone)
-  // rectangle → ▬ (Black rectangle)
-  // chevron → ⏶ (Black medium up-pointing triangle)
-  // egg → 🥚 (Egg)
-  // cigar → 🚬 (Cigarette)
-  // cone → 🍦 (Ice cream cone)
-  // cross → ✖️ (Heavy multiplication X)
-  // flash → ⚡ (High voltage sign)
-  // formation → ✨ (Sparkles)
-  // changing → 🔄 (Counterclockwise arrows button)
-  // unknown → ❓ (Question mark)
-  
   const shapeEmojis = {
-    circle: "⭕",           // Red circle
-    disk: "🛸",             // Flying saucer
-    triangle: "🔺",       // Red triangle pointed up
-    light: "💡",          // Light bulb
-    sphere: "🔮",         // Crystal ball
-    fireball: "🔥",       // Fire
-    oval: "🥚",           // Egg
-    cylinder: "🎫",       // Ticket
-    diamond: "💎",        // Gem stone
-    rectangle: "▬",      // Black rectangle
-    chevron: "⏶",        // Black medium up-pointing triangle
-    egg: "🥚",            // Egg
-    cigar: "🚬",         // Cigarette
-    cone: "🍦",          // Ice cream cone
-    cross: "✖️",         // Heavy multiplication X
-    flash: "⚡",          // High voltage sign
-    formation: "✨",     // Sparkles
-    changing: "🔄",      // Counterclockwise arrows button
-    unknown: "❓",        // Question mark
+    circle: "⭕",
+    disk: "🛸",
+    triangle: "🔺",
+    light: "💡",
+    sphere: "🔮",
+    fireball: "🔥",
+    oval: "🥚",
+    cylinder: "🎫",
+    diamond: "💎",
+    rectangle: "▬",
+    chevron: "⏶",
+    egg: "🥚",
+    cigar: "🚬",
+    cone: "🍦",
+    cross: "✖️",
+    flash: "⚡",
+    formation: "✨",
+    changing: "🔄",
+    unknown: "❓",
   };
   
   const emoji = shapeEmojis[normalizedShape] || shapeEmojis.unknown;
   
-  // Return emoji wrapped in a styled div for large display
+  // Return emoji wrapped in a styled div for larger display
   return `<div style="font-size: 120px; text-align: center; line-height: 1;">${emoji}</div>`;
 }
+
+// Rest of the code remains the same...
+// (Copy everything else from the original index.js but replace getUfoShapeIcon calls with getUfoShapeEmoji)
 
 function closeDetailsPanel() {
   detailsPanel.classList.add("hidden");
@@ -443,12 +428,9 @@ map.on("load", () => {
       map.getCanvas().style.cursor = "pointer";
 
       const f = e.features[0];
-      let { comments, city, state, country, datetime, shape, durationFull } =
+      const { comments, city, state, country, datetime, shape, durationFull } =
         f.properties;
 
-      city = city.replace(/\b\w/g, char => char.toUpperCase());
-
-      // Pop-up Mapbox
       const dateObj = new Date(datetime);
       const formattedDate = !isNaN(dateObj)
         ? dateObj.toLocaleDateString("en-US")
@@ -513,7 +495,7 @@ map.on("load", () => {
         )
         .addTo(map);
 
-      // Details panel with EMOJI instead of random avatar
+      // Details panel with EMOJI instead of SVG or random avatar
       if (comments) {
         const commenterName = generateRandomName(comments);
         const shapeEmoji = getUfoShapeEmoji(shape);
@@ -540,25 +522,6 @@ map.on("load", () => {
         activePopup = null;
       }
       closeDetailsPanel();
-    });
-
-    map.on("mouseleave", "unclustered-point", () => {
-      if (popupClickListener) {
-        popupClickListener = false;
-        return;
-      }
-
-      const features = map.queryRenderedFeatures(e.point, {
-        layers: ["unclustered-point"],
-      });
-
-      if (features.length === 0) {
-        closeDetailsPanel();
-        if (activePopup) {
-          activePopup.remove();
-          activePopup = null;
-        }
-      }
     });
 
     map.on("click", "clusters", (e) => {
