@@ -299,18 +299,12 @@ function initMapInteractions() {
         </div>
       `;
       detailsPanel.classList.remove("hidden");
-    } else {
+    } else
       detailsPanel.classList.add("hidden");
-    }
   });
 
   map.on("mouseleave", "unclustered-point", () => {
     map.getCanvas().style.cursor = "";
-    if (activePopup) {
-      activePopup.remove();
-      activePopup = null;
-    }
-    detailsPanel.classList.add("hidden");
   });
 
   map.on("click", "clusters", (e) => {
