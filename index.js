@@ -140,7 +140,7 @@ function populateFilters(rows) {
 function setupFilterListeners() {
   [countrySelect, stateSelect, shapeSelect].forEach((el) => {
     el.addEventListener("change", (e) => {
-      closeDetailsPanel();
+      detailsPanel.classList.add("hidden");
       if (activePopup) {
         activePopup.remove();
         activePopup = null;
@@ -158,7 +158,7 @@ function setupFilterListeners() {
           stateSelect.value = "";
         }
         updateStateFilterOptions(val);
-
+        
         if (!val)
           map.easeTo({ center: initialCenter, zoom: initialZoom });
         else {
@@ -300,7 +300,7 @@ function initMapInteractions() {
       `;
       detailsPanel.classList.remove("hidden");
     } else {
-      closeDetailsPanel();
+      detailsPanel.classList.add("hidden");
     }
   });
 
@@ -310,13 +310,13 @@ function initMapInteractions() {
       activePopup.remove();
       activePopup = null;
     }
-    closeDetailsPanel();
+    detailsPanel.classList.add("hidden");
   });
 
   map.on("click", "clusters", (e) => {
     if (!groupSightings) return;
     e.originalEvent.stopPropagation();
-    closeDetailsPanel();
+    detailsPanel.classList.add("hidden");
     if (activePopup) {
       activePopup.remove();
       activePopup = null;
@@ -513,10 +513,6 @@ function updateStats(features) {
   document.querySelector("#avg-duration .stat-value").textContent = avg + (avg !== "N/A" ? " seconds" : "");
 }
 
-function closeDetailsPanel() {
-  detailsPanel.classList.add("hidden");
-}
-
 function updateThumbs() {
   const rangeWidth = 250;
   const leftMin = ((valueMin - minYear) / (maxYear - minYear)) * rangeWidth;
@@ -569,7 +565,7 @@ function setupUIInteractions() {
       mapDiv.style.display = index === 0 ? "block" : "none";
       chartContainer.style.display = index === 0 ? "none" : "block";
 
-      closeDetailsPanel();
+      detailsPanel.classList.add("hidden");
       if (activePopup) { activePopup.remove(); activePopup = null; }
 
       if (index === 0) {
