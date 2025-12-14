@@ -1,7 +1,5 @@
 # UFO Sightings
 
-## Work in Progress
-
 This website was developed for the "Information Visualization" course unit of the Master's in Design and Multimedia of the Faculty of Sciences and Technology of the University of Coimbra. This project was made by Estêvão Abreu, João Luiz Castanheira and José Pedro Gomes.
 
 This project utilizes the dataset provided by the National UFO Reporting Center (NUFORC) on Kaggle, and it serves as a map visualization of reported UFO Sightings around the world, including information and filtering features regarding date, time, place and shape.
