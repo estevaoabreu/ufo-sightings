@@ -3,6 +3,97 @@ mapboxgl.accessToken = "pk.eyJ1IjoiZXN0ZXZhb2FicmV1IiwiYSI6ImNsdjc2bzMyZDA2dnIya
 let allFeatures = [];
 let ufoFeatures = [];
 
+const mapDiv = document.getElementById("map");
+const initialCenter = [-50, 40];
+const initialZoom = 1.0;
+const countryZoomLevel = 6;
+const stateZoomLevel = 8;
+let activePopup = null;
+
+const clusterToggle = document.getElementById("cluster-toggle");
+let groupSightings = clusterToggle.checked;
+
+const map = new mapboxgl.Map({
+  container: "map",
+  style: "mapbox://styles/estevaoabreu/clv76r3ur00nh01qve6re2wvh",
+  center: initialCenter,
+  zoom: initialZoom,
+  minZoom: 2,
+  projection: "mercator",
+});
+
+function updateMapVisualization() {
+  if (map.getLayer("cluster-count")) map.removeLayer("cluster-count");
+  if (map.getLayer("clusters")) map.removeLayer("clusters");
+  if (map.getLayer("unclustered-point")) map.removeLayer("unclustered-point");
+  if (map.getSource("ufoSightings")) map.removeSource("ufoSightings");
+
+  const sourceOptions = {
+    type: "geojson",
+    data: { type: "FeatureCollection", features: ufoFeatures },
+  };
+
+  if (groupSightings) {
+    sourceOptions.cluster = true;
+    sourceOptions.clusterMaxZoom = 6;
+    sourceOptions.clusterRadius = 40;
+  }
+
+  map.addSource("ufoSightings", sourceOptions);
+
+  if (groupSightings) {
+    map.addLayer({
+      id: "clusters",
+      type: "circle",
+      source: "ufoSightings",
+      filter: ["has", "point_count"],
+      paint: {
+        "circle-color": [
+          "step", ["get", "point_count"],
+          "rgba(100, 200, 255, 0.25)", 250,
+          "rgba(100, 200, 255, 0.5)", 1500,
+          "rgba(100, 200, 255, 0.75)", 7500,
+          "rgba(100, 200, 255, 1)",
+        ],
+        "circle-radius": [
+          "step", ["get", "point_count"],
+          15, 250,
+          30, 1500,
+          45, 7500,
+          60,
+        ],
+        "circle-stroke-color": "#e8e7e7",
+        "circle-stroke-width": 0.5,
+      },
+    });
+
+    map.addLayer({
+      id: "cluster-count",
+      type: "symbol",
+      source: "ufoSightings",
+      filter: ["has", "point_count"],
+      layout: {
+        "text-field": ["get", "point_count_abbreviated"],
+        "text-size": 12,
+      },
+      paint: { "text-color": "#e8e7e7" },
+    });
+  }
+
+  map.addLayer({
+    id: "unclustered-point",
+    type: "circle",
+    source: "ufoSightings",
+    filter: groupSightings ? ["!", ["has", "point_count"]] : ["all"],
+    paint: {
+      "circle-color": "#64C8FF",
+      "circle-radius": 4,
+    },
+  });
+
+  updateStats(ufoFeatures);
+}
+
 const countrySelect = document.getElementById("country-filter");
 const stateSelect = document.getElementById("state-filter");
 const shapeSelect = document.getElementById("shape-filter");
@@ -152,94 +243,6 @@ function applyFilters() {
   });
 }
 
-const mapDiv = document.getElementById("map");
-const clusterToggle = document.getElementById("cluster-toggle");
-const initialCenter = [-50, 40];
-const initialZoom = 1.0;
-const countryZoomLevel = 6;
-const stateZoomLevel = 8;
-let activePopup = null;
-let groupSightings = clusterToggle.checked;
-
-const map = new mapboxgl.Map({
-  container: "map",
-  style: "mapbox://styles/estevaoabreu/clv76r3ur00nh01qve6re2wvh",
-  center: initialCenter,
-  zoom: initialZoom,
-  minZoom: 2,
-  projection: "mercator",
-});
-
-function updateMapVisualization() {
-  if (map.getLayer("cluster-count")) map.removeLayer("cluster-count");
-  if (map.getLayer("clusters")) map.removeLayer("clusters");
-  if (map.getLayer("unclustered-point")) map.removeLayer("unclustered-point");
-  if (map.getSource("ufoSightings")) map.removeSource("ufoSightings");
-
-  updateStats(ufoFeatures);
-
-  const sourceOptions = {
-    type: "geojson",
-    data: { type: "FeatureCollection", features: ufoFeatures },
-  };
-
-  if (groupSightings) {
-    sourceOptions.cluster = true;
-    sourceOptions.clusterMaxZoom = 6;
-    sourceOptions.clusterRadius = 40;
-  }
-
-  map.addSource("ufoSightings", sourceOptions);
-
-  if (groupSightings) {
-    map.addLayer({
-      id: "clusters",
-      type: "circle",
-      source: "ufoSightings",
-      filter: ["has", "point_count"],
-      paint: {
-        "circle-color": [
-          "step", ["get", "point_count"],
-          "rgba(100, 200, 255, 0.25)", 250,
-          "rgba(100, 200, 255, 0.5)", 500,
-          "rgba(100, 200, 255, 0.75)", 750,
-          "rgba(100, 200, 255, 1)",
-        ],
-        "circle-radius": [
-          "step", ["get", "point_count"],
-          15, 250, 25, 1000, 35, 5000, 45,
-        ],
-        "circle-stroke-color": "#e8e7e7",
-        "circle-stroke-width": 1,
-      },
-    });
-
-    map.addLayer({
-      id: "cluster-count",
-      type: "symbol",
-      source: "ufoSightings",
-      filter: ["has", "point_count"],
-      layout: {
-        "text-field": ["get", "point_count_abbreviated"],
-        "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-        "text-size": 12,
-      },
-      paint: { "text-color": "#e8e7e7" },
-    });
-  }
-
-  map.addLayer({
-    id: "unclustered-point",
-    type: "circle",
-    source: "ufoSightings",
-    filter: groupSightings ? ["!", ["has", "point_count"]] : ["all"],
-    paint: {
-      "circle-color": "#64C8FF",
-      "circle-radius": 4,
-    },
-  });
-}
-
 function zoomToArea(features, maxZoom) {
   if (features.length === 0) return;
   const lons = features.map((f) => f.geometry.coordinates[0]);
@@ -265,7 +268,6 @@ function zoomToState(state) {
 }
 
 function initMapInteractions() {
-  const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
 
   map.on("mouseenter", "unclustered-point", (e) => {
     map.getCanvas().style.cursor = "pointer";
