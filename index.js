@@ -133,7 +133,6 @@ function populateFilters(rows) {
     countrySelect.innerHTML += `<option value='${c}'>${c}</option>`;
   });
 
-  updateStateFilterVisibility("");
   updateStateFilterOptions("");
   updateShapeFilterOptions();
 }
@@ -151,23 +150,28 @@ function setupFilterListeners() {
       const val = e.target.value;
 
       if (id === "country-filter") {
-        updateStateFilterVisibility(val);
+        const container = stateSelect.parentElement;
+        if (val === "United States" || val === "Canada")
+          container.classList.remove("hidden");
+        else {
+          container.classList.add("hidden");
+          stateSelect.value = "";
+        }
         updateStateFilterOptions(val);
-        if (!val) {
+
+        if (!val)
           map.easeTo({ center: initialCenter, zoom: initialZoom });
-        } else {
+        else {
           const features = allFeatures.filter((f) => f.properties.country === val);
           zoomToArea(features, countryZoomLevel);
         }
       }
 
-      if (id === "country-filter" || id === "state-filter") {
+      if (id === "country-filter" || id === "state-filter")
         updateShapeFilterOptions();
-      }
 
-      if (id === "state-filter") {
+      if (id === "state-filter")
         zoomToState(val);
-      }
 
       ufoFeatures = applyFilters();
       updateMapVisualization();
@@ -179,23 +183,12 @@ function setupFilterListeners() {
 function updateStateFilterOptions(country) {
   stateSelect.innerHTML = '<option value="">All states</option>';
   let statesToShow = [];
-  if (country && countryToStatesMap[country]) {
+  if (country && countryToStatesMap[country])
     statesToShow = [...countryToStatesMap[country]].sort();
-  }
   statesToShow.forEach((s) => {
     stateSelect.innerHTML += `<option value='${s}'>${s}</option>`;
   });
   stateSelect.value = "";
-}
-
-function updateStateFilterVisibility(country) {
-  const container = stateSelect.parentElement;
-  if (country === "United States" || country === "Canada") {
-    container.classList.remove("hidden");
-  } else {
-    container.classList.add("hidden");
-    stateSelect.value = "";
-  }
 }
 
 function updateShapeFilterOptions() {
@@ -206,9 +199,9 @@ function updateShapeFilterOptions() {
   const key = `${country || ""}-${state || ""}`;
   let shapesToShow = [];
 
-  if (countryStateToShapesMap[key]) {
+  if (countryStateToShapesMap[key])
     shapesToShow = [...countryStateToShapesMap[key]].sort();
-  } else if (country) {
+  else if (country) {
     const countryShapes = new Set();
     Object.entries(countryStateToShapesMap).forEach(([k, sSet]) => {
       if (k.startsWith(country)) sSet.forEach((s) => countryShapes.add(s));
