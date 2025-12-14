@@ -14,6 +14,119 @@ let valueMax = maxYear;
 
 let countryToStatesMap = {};
 let countryStateToShapesMap = {};
+let activePopup = null;
+let popupClickListener = false;
+
+const firstNames = [
+  "Alex",
+  "Jordan",
+  "Morgan",
+  "Casey",
+  "Riley",
+  "Taylor",
+  "Dakota",
+  "Quinn",
+  "Avery",
+  "Cameron",
+  "Blake",
+  "Skylar",
+  "River",
+  "Sam",
+  "Jamie",
+  "Whitney",
+  "Reese",
+  "Phoenix",
+  "Sage",
+  "Storm",
+];
+const lastNames = [
+  "Smith",
+  "Johnson",
+  "Williams",
+  "Brown",
+  "Jones",
+  "Garcia",
+  "Miller",
+  "Davis",
+  "Rodriguez",
+  "Martinez",
+  "Hernandez",
+  "Lopez",
+  "Gonzalez",
+  "Wilson",
+  "Anderson",
+  "Thomas",
+  "Taylor",
+  "Moore",
+  "Jackson",
+  "Martin",
+];
+
+function generateRandomName(seed) {
+  const hash = seed
+    .split("")
+    .reduce((a, b) => (a << 5) - a + b.charCodeAt(0), 0);
+  const firstIdx = Math.abs(hash % firstNames.length);
+  const lastIdx = Math.abs(((hash / firstNames.length) | 0) % lastNames.length);
+  return `${firstNames[firstIdx]} ${lastNames[lastIdx]}`;
+}
+
+// Function to get UFO shape as EMOJI (120px size)
+function getUfoShapeEmoji(shape) {
+  const normalizedShape = (shape || "unknown").toLowerCase().trim();
+  
+  // EMOJI MAPPING:
+  // circle → ⭕ (Red circle)
+  // disk → 🛸 (Flying saucer)
+  // triangle → 🔺 (Red triangle pointed up)
+  // light → 💡 (Light bulb)
+  // sphere → 🔮 (Crystal ball)
+  // fireball → 🔥 (Fire)
+  // oval → 🥚 (Egg)
+  // cylinder → 🎫 (Ticket)
+  // diamond → 💎 (Gem stone)
+  // rectangle → ▬ (Black rectangle)
+  // chevron → ⏶ (Black medium up-pointing triangle)
+  // egg → 🥚 (Egg)
+  // cigar → 🚬 (Cigarette)
+  // cone → 🍦 (Ice cream cone)
+  // cross → ✖️ (Heavy multiplication X)
+  // flash → ⚡ (High voltage sign)
+  // formation → ✨ (Sparkles)
+  // changing → 🔄 (Counterclockwise arrows button)
+  // unknown → ❓ (Question mark)
+  
+  const shapeEmojis = {
+    circle: "⭕",           // Red circle
+    disk: "🛸",             // Flying saucer
+    triangle: "🔺",       // Red triangle pointed up
+    light: "💡",          // Light bulb
+    sphere: "🔮",         // Crystal ball
+    fireball: "🔥",       // Fire
+    oval: "🥚",           // Egg
+    cylinder: "🎫",       // Ticket
+    diamond: "💎",        // Gem stone
+    rectangle: "▬",      // Black rectangle
+    chevron: "⏶",        // Black medium up-pointing triangle
+    egg: "🥚",            // Egg
+    cigar: "🚬",         // Cigarette
+    cone: "🍦",          // Ice cream cone
+    cross: "✖️",         // Heavy multiplication X
+    flash: "⚡",          // High voltage sign
+    formation: "✨",     // Sparkles
+    changing: "🔄",      // Counterclockwise arrows button
+    unknown: "❓",        // Question mark
+  };
+  
+  const emoji = shapeEmojis[normalizedShape] || shapeEmojis.unknown;
+  
+  // Return emoji wrapped in a styled div for large display
+  return `<div style="font-size: 120px; text-align: center; line-height: 1;">${emoji}</div>`;
+}
+
+function closeDetailsPanel() {
+  detailsPanel.classList.add("hidden");
+}
 
 function populateFilters(rows) {
   const countries = new Set();
@@ -295,19 +408,25 @@ function initMapInteractions() {
       `)
       .addTo(map);
 
-    if (comments) {
-      detailsPanel.innerHTML = `
-        <div class='comment-image-container'>${getUfoShapeEmoji(shape)}</div>
-        <div class='comment-details'>
-            <p class='comment-name'>${generateRandomName(comments)}</p>
-            <p class='comment-text'>${comments}</p>
-        </div>
-      `;
-      detailsPanel.classList.remove("hidden");
-    } else {
-      closeDetailsPanel();
-    }
-  });
+      // Details panel with EMOJI instead of random avatar
+      if (comments) {
+        const commenterName = generateRandomName(comments);
+        const shapeEmoji = getUfoShapeEmoji(shape);
+
+        detailsContent.innerHTML = `
+            <div class='comment-card'>
+                <div class='comment-image-container'>${shapeEmoji}</div>
+                <div class='comment-details'>
+                    <p class='comment-name'>${commenterName}</p>
+                    <p class='comment-text'>${comments}</p>
+                </div>
+            </div>
+        `;
+        detailsPanel.classList.remove("hidden");
+      } else {
+        closeDetailsPanel();
+      }
+    });
 
   map.on("mouseleave", "unclustered-point", () => {
     map.getCanvas().style.cursor = "";
@@ -334,21 +453,95 @@ function initMapInteractions() {
     });
   });
 
-  map.on("mouseenter", "clusters", () => (map.getCanvas().style.cursor = "pointer"));
-  map.on("mouseleave", "clusters", () => (map.getCanvas().style.cursor = ""));
+const thumbMin = document.getElementById("thumb-min");
+const thumbMax = document.getElementById("thumb-max");
+const yearDisplay = document.getElementById("year-display");
+
+const minYear = 1906;
+const maxYear = 2014;
+let valueMin = minYear;
+let valueMax = maxYear;
+const rangeWidth = 250;
+
+const bubbleMin = document.getElementById("bubble-min");
+const bubbleMax = document.getElementById("bubble-max");
+
+function updateThumbs() {
+  const leftMin = ((valueMin - minYear) / (maxYear - minYear)) * rangeWidth;
+  const leftMax = ((valueMax - minYear) / (maxYear - minYear)) * rangeWidth;
+
+  thumbMin.style.left = leftMin + "px";
+  thumbMax.style.left = leftMax + "px";
+
+  bubbleMin.style.left = leftMin + "px";
+  bubbleMax.style.left = leftMax + "px";
+
+  bubbleMin.textContent = valueMin;
+  bubbleMax.textContent = valueMax;
+
+  ufoFeatures = applyFilters();
+  updateMapVisualization();
+  updateCharts();
 }
 
-const chartContainer = document.getElementById("chart-container");
-let currentChart = null;
-
-function updateCharts() {
-  const activeBtnIndex = Array.from(document.querySelectorAll(".map-btn")).findIndex((b) =>
-    b.classList.contains("active")
-  );
-  if (activeBtnIndex === 1) drawTimelineChart(ufoFeatures);
-  if (activeBtnIndex === 2) drawShapesChart(ufoFeatures);
-  if (activeBtnIndex === 3) drawMonthlyChart(ufoFeatures);
+function dragThumb(thumb, isMin) {
+  thumb.onmousedown = function (e) {
+    e.preventDefault();
+    document.onmousemove = function (event) {
+      const rect = thumb.parentElement.getBoundingClientRect();
+      let x = event.clientX - rect.left;
+      x = Math.max(0, Math.min(rangeWidth, x));
+      const val = Math.round((x / rangeWidth) * (maxYear - minYear) + minYear);
+      if (isMin) valueMin = Math.min(val, valueMax);
+      else valueMax = Math.max(val, valueMin);
+      updateThumbs();
+    };
+    document.onmouseup = function () {
+      document.onmousemove = null;
+      document.onmouseup = null;
+    };
+  };
 }
+
+dragThumb(thumbMin, true);
+dragThumb(thumbMax, false);
+
+const mapButtons = document.querySelectorAll(".map-btn");
+const mapDiv = document.querySelector("#map");
+const timelineDiv = document.querySelector("#timeline-container");
+const shapesDiv = document.querySelector("#shapes-container");
+const monthlyDiv = document.querySelector("#monthly-container");
+
+let timelineChart, shapesChart, monthlyChart;
+
+const initialCenter = [-50, 40];
+const initialZoom = 1.0;
+
+mapButtons.forEach((btn, index) => {
+  btn.addEventListener("click", () => {
+    mapButtons.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    mapDiv.style.display = index === 0 ? "block" : "none";
+    timelineDiv.style.display = index === 1 ? "block" : "none";
+    shapesDiv.style.display = index === 2 ? "block" : "none";
+    monthlyDiv.style.display = index === 3 ? "block" : "none";
+
+    closeDetailsPanel();
+    if (activePopup) {
+      activePopup.remove();
+      activePopup = null;
+    }
+
+    if (index === 0) {
+      map.resize();
+      map.easeTo({ center: initialCenter, zoom: initialZoom, duration: 1000 });
+    }
+    if (index === 1) drawTimelineChart(ufoFeatures);
+    if (index === 2) drawShapesChart(ufoFeatures);
+    if (index === 3) drawMonthlyChart(ufoFeatures);
+  });
+});
 
 function drawTimelineChart(features) {
   chartContainer.innerHTML = "";
@@ -501,118 +694,49 @@ function getUfoShapeEmoji(shape) {
   return `<div style="font-size: 120px; text-align: center; line-height: 1;">${map[(shape || "").toLowerCase().trim()] || map.unknown}</div>`;
 }
 
-function updateStats(features) {
-  document.querySelector("#total-sightings .stat-value").textContent = features.length;
-  document.querySelector("#total-cities .stat-value").textContent = new Set(features.map((f) => f.properties.city).filter(Boolean)).size;
-
-  const shapeCounts = {};
-  features.forEach((f) => {
-    const s = f.properties.shape || "Unknown";
-    shapeCounts[s] = (shapeCounts[s] || 0) + 1;
-  });
-  const commonShape = Object.keys(shapeCounts).length ? Object.entries(shapeCounts).sort((a, b) => b[1] - a[1])[0][0] : "N/A";
-  document.querySelector("#common-shape .stat-value").textContent = commonShape;
-
-  const durations = features.map((f) => f.properties.durationSeconds).filter((d) => !isNaN(d));
-  const avg = durations.length ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1) : "N/A";
-  document.querySelector("#avg-duration .stat-value").textContent = avg + (avg !== "N/A" ? " seconds" : "");
+function zoomToArea(features, maxZoom) {
+  if (features.length === 0) return;
+  const lons = features.map((f) => f.geometry.coordinates[0]);
+  const lats = features.map((f) => f.geometry.coordinates[1]);
+  const bounds = [
+    [Math.min(...lons), Math.min(...lats)],
+    [Math.max(...lons), Math.max(...lats)],
+  ];
+  map.fitBounds(bounds, { padding: 50, maxZoom: maxZoom, duration: 1000 });
 }
 
-function closeDetailsPanel() {
-  detailsPanel.classList.add("hidden");
-}
+const countryFilter = document.getElementById("country-filter");
+countryFilter.addEventListener("change", (e) => {
+  const country = e.target.value;
+  if (!country) return map.easeTo({ center: [-50, 40], zoom: 1.0 });
+  const features = allFeatures.filter((f) => f.properties?.country === country);
+  zoomToArea(features, 6);
+});
 
-function updateThumbs() {
-  const rangeWidth = 250;
-  const leftMin = ((valueMin - minYear) / (maxYear - minYear)) * rangeWidth;
-  const leftMax = ((valueMax - minYear) / (maxYear - minYear)) * rangeWidth;
-
-  thumbMin.style.left = leftMin + "px";
-  thumbMax.style.left = leftMax + "px";
-  bubbleMin.style.left = leftMin + "px";
-  bubbleMax.style.left = leftMax + "px";
-  bubbleMin.textContent = valueMin;
-  bubbleMax.textContent = valueMax;
-
-  ufoFeatures = applyFilters();
-  updateMapVisualization();
-  updateCharts();
-}
-
-function setupSlider() {
-  const rangeWidth = 250;
-  function dragThumb(thumb, isMin) {
-    thumb.onmousedown = (e) => {
-      e.preventDefault();
-      document.onmousemove = (event) => {
-        const rect = thumb.parentElement.getBoundingClientRect();
-        let x = Math.max(0, Math.min(rangeWidth, event.clientX - rect.left));
-        const val = Math.round((x / rangeWidth) * (maxYear - minYear) + minYear);
-        if (isMin) valueMin = Math.min(val, valueMax);
-        else valueMax = Math.max(val, valueMin);
-        updateThumbs();
-      };
-      document.onmouseup = () => { document.onmousemove = null; document.onmouseup = null; };
-    };
+function zoomToState(state) {
+  if (!state) {
+    const country = document.getElementById("country-filter").value;
+    if (country) {
+      const features = allFeatures.filter(
+        (f) => f.properties?.country === country
+      );
+      zoomToArea(features, 6);
+    }
+    return;
   }
-  dragThumb(thumbMin, true);
-  dragThumb(thumbMax, false);
+
+  const features = allFeatures.filter((f) => f.properties?.state === state);
+  zoomToArea(features, 8);
 }
 
-function setupUIInteractions() {
-  clusterToggle.addEventListener("change", () => {
-    groupSightings = clusterToggle.checked;
-    updateMapVisualization();
-  });
+const aboutBtn = document.querySelector(".about-us");
+const overlay = document.getElementById("overlay");
+const closeBtn = document.getElementById("close-overlay");
 
-  const mapButtons = document.querySelectorAll(".map-btn");
-  mapButtons.forEach((btn, index) => {
-    btn.addEventListener("click", () => {
-      mapButtons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
+aboutBtn.addEventListener("click", () => {
+  overlay.style.display = "flex";
+});
 
-      mapDiv.style.display = index === 0 ? "block" : "none";
-      chartContainer.style.display = index === 0 ? "none" : "block";
-
-      closeDetailsPanel();
-      if (activePopup) { activePopup.remove(); activePopup = null; }
-
-      if (index === 0) {
-        map.resize();
-        map.easeTo({ center: initialCenter, zoom: initialZoom, duration: 1000 });
-      } else {
-        updateCharts();
-      }
-    });
-  });
-
-  const overlay = document.getElementById("overlay");
-  document.querySelector(".about").addEventListener("click", () => overlay.style.display = "flex");
-  document.getElementById("close-overlay").addEventListener("click", () => overlay.style.display = "none");
-}
-
-map.on("load", () => {
-  d3.csv("data.csv").then((rows) => {
-    allFeatures = rows.map((d) => {
-      const dt = new Date(d.datetime);
-      return {
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [+d.longitude, +d.latitude] },
-        properties: {
-          city: d.city, state: d.state, country: d.country,
-          shape: d.shape || "", datetime: d.datetime, comments: d.comments,
-          durationSeconds: parseFloat(d.durationSeconds), durationFull: d.durationFull,
-          year: !isNaN(dt) ? dt.getFullYear() : 0,
-          month: !isNaN(dt) ? dt.getMonth() : undefined
-        },
-      };
-    });
-
-    populateFilters(rows);
-    setupFilterListeners();
-    setupSlider();
-    setupUIInteractions();
-    initMapInteractions();
-    updateThumbs();
-  });
+closeBtn.addEventListener("click", () => {
+  overlay.style.display = "none";
 });

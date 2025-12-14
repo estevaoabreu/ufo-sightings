@@ -141,8 +141,171 @@ body {
 
 #filter-panel label {
   display: block;
-  margin-top: 1em;
-  font-size: 0.9em;
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--white);
+}
+
+#details-panel {
+  position: absolute;
+  top: calc(120px + 310px);
+  left: 90px;
+  width: 280px;
+  background: transparent;
+  padding: 0;
+  z-index: 10;
+}
+
+#details-panel.hidden {
+  display: none;
+}
+
+#details {
+  width: 100%;
+}
+
+.comment-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--black);
+  border: 2px solid var(--white);
+  border-radius: 10px;
+  overflow: hidden;
+  width: 100%;
+  margin-left: -62px;
+}
+
+.comment-card::before {
+  content: "Sighting Details";
+  display: block;
+  padding: 16px 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--white);
+  background: transparent;
+}
+
+/* New styles for UFO shape icon container */
+.comment-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: transparent;
+  min-height: 100px;
+}
+
+.comment-image-container svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.comment-image {
+  height: 130px;
+  width: auto;
+  border-radius: 0;
+  display: block;
+  margin: 0;
+  border: none;
+  flex-shrink: 0;
+}
+
+.comment-details {
+  background: transparent;
+  padding: 16px;
+  border-radius: 0;
+  border: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.comment-name {
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--white);
+}
+
+.comment-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--white);
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.ufo-box {
+  background: var(--black);
+  border: 2px solid var(--white);
+  padding: 0;
+  border-radius: 10px;
+  width: 280px;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+
+.ufo-box h3 {
+  margin: 0;
+  padding: 16px 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--white);
+  background: transparent;
+}
+
+.ufo-box .sighting-info {
+  padding: 16px;
+  color: var(--white);
+}
+
+.sighting-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.sighting-item:last-child {
+  margin-bottom: 0;
+}
+
+.sighting-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--white);
+  font-size: 14px;
+}
+
+.sighting-item-label {
+  font-weight: 500;
+  color: var(--white);
+  min-width: 70px;
+}
+
+.sighting-item-value {
+  color: var(--white);
+  flex: 1;
+  word-wrap: break-word;
+}
+
+.mapboxgl-popup-content {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  border: none;
+}
+
+.mapboxgl-popup {
+  font-size: 13px;
+  line-height: 1.3;
 }
 
 .dual-range {
